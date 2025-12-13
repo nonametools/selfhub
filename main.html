@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SelfHub — Scratch Execute</title>
+
+<style>
+/* === THEME === */
+:root{
+  --bg:#071224; --card:#0f1720; --accent:#1f6feb; --muted:#7fa3c7;
+  --ok:#2db85a; --err:#e04d4d;
+  --block:#112033; --block-contrast:#16324b;
+}
+html,body{
+  margin:0;height:100%;
+  font-family:Inter,system-ui;
+  background:var(--bg);color:#e6eef8;
+}
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.05)
+}
+h1{margin:0;font-size:18px;color:#9ad0ff}
+.sub{font-size:12px;color:var(--muted)}
+.container{
+  max-width:1200px;margin:16px auto;padding:0 16px;
+  display:grid;grid-template-columns:340px 1fr;gap:16px
+}
+.card{
+  background:var(--card);padding:12px;border-radius:10px;
+  border:1px solid rgba(255,255,255,.04)
+}
+button{
+  padding:7px 10px;border-radius:8px;border:none;
+  background:var(--accent);color:#fff;cursor:pointer
+}
+button.ghost{background:transparent;border:1px solid rgba(255,255,255,.1)}
+button.ok{background:var(--ok)}
+button.danger{background:var(--err)}
+input,textarea,select{
+  width:100%;padding:7px;border-radius:7px;
+  background:#0000;border:1px solid rgba(255,255,255,.1);
+  color:#e6eef8;box-sizing:border-box
+}
+textarea{resize:vertical}
+.list{max-height:220px;overflow:auto}
+.item{
+  padding:7px;border-radius:7px;
+  background:rgba(255,255,255,.03);
+  margin-bottom:6px;
+  display:flex;justify-content:space-between;align-items:center
+}
+.block{background:var(--block);padding:8px;border-radius:8px;cursor:grab}
+.wblock{
+  background:var(--block-contrast);
+  padding:8px;border-radius:6px;
+  display:flex;justify-content:space-between;cursor:grab
+}
+#workspace{
+  min-height:300px;border:1px dashed rgba(255,255,255,.1);
+  padding:10px;border-radius:8px;
+  display:flex;flex-direction:column;gap:8px
+}
+pre{
+  background:#031324;color:#cfefff;
+  padding:8px;border-radius:6px;
+  max-height:300px;overflow:auto
+}
+@media(max-width:900px){
+  .container{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+<header>
+  <div>
+    <h1>SelfHub</h1>
+    <div class="sub">Saved Sequences / Scratch Executor</div>
+  </div>
+  <div class="sub">localStorage only</div>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h3>Saved Sequences</h3>
+    <input id="seqName" placeholder="sequence name">
+    <button id="saveSeq">保存</button>
+    <div id="seqList" class="list"></div>
+  </div>
+
+  <div class="card">
+    <h3>Workspace</h3>
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <div class="block" data-type="api">API</div>
+      <div class="block" data-type="wait">WAIT</div>
+      <div class="block" data-type="comment">COMMENT</div>
+    </div>
+    <div id="workspace"></div>
+    <h4>Preview</h4>
+    <pre id="preview">[]</pre>
+  </div>
+</div>
+
+<footer style="text-align:center;font-size:12px;color:#7fa3c7;padding:10px">
+  SelfHub © Local Only
+</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+
+const KEY = 'selfhub_v1'
+const $ = id=>document.getElementById(id)
+let DB = JSON.parse(localStorage.getItem(KEY)||'{"sequences":{}}')
+const workspace = $('workspace')
+
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(DB))
+  renderList()
+}
+function renderList(){
+  $('seqList').innerHTML=''
+  Object.entries(DB.sequences).forEach(([id,s])=>{
+    const d=document.createElement('div')
+    d.className='item'
+    d.innerHTML=`<b>${s.name}</b>
+      <span>
+      <button data-id="${id}">Load</button>
+      </span>`
+    d.querySelector('button').onclick=()=>{
+      loadSeq(id)
+    }
+    $('seqList').appendChild(d)
+  })
+}
+function blocks(){
+  return [...workspace.children].map(w=>w._data)
+}
+function updatePreview(){
+  $('preview').textContent=JSON.stringify(blocks(),null,2)
+}
+
+function makeBlock(type){
+  const d=document.createElement('div')
+  d.className='wblock'
+  d._data={type}
+  d.textContent=type.toUpperCase()
+  d.onclick=()=>updatePreview()
+  return d
+}
+
+document.querySelectorAll('.block').forEach(b=>{
+  b.onclick=()=>{
+    workspace.appendChild(makeBlock(b.dataset.type))
+    updatePreview()
+  }
+})
+
+$('saveSeq').onclick=()=>{
+  const name=$('seqName').value.trim()
+  if(!name)return alert('name')
+  DB.sequences['s_'+Date.now()]={name,blocks:blocks()}
+  save()
+}
+
+function loadSeq(id){
+  workspace.innerHTML=''
+  DB.sequences[id].blocks.forEach(b=>{
+    const d=makeBlock(b.type)
+    d._data=b
+    workspace.appendChild(d)
+  })
+  updatePreview()
+}
+
+renderList()
+updatePreview()
+
+})
+</script>
+</body>
+</html>
