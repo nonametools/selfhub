@@ -280,7 +280,6 @@ function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,
 function loadInitial(){ if(DB.icon){ $('iconPreview').src = DB.icon; $('iconInfo').textContent = 'Icon loaded'; } refreshTokenUI(); refreshTplUI(); refreshSeqList(); document.getElementById('palette').style.display = 'none'; workspace.classList.remove('horizontal'); workspace.style.display='none'; updateLayoutNotice(); }
 function defaultSetup(){ loadInitial(); }
 defaultSetup();
-workspace.addEventListener('DOMSubtreeModified', ()=> refreshSeqPreview());
 </script>
 </body>
 </html>
