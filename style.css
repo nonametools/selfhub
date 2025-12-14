@@ -1,0 +1,13 @@
+:root{
+  --bg:#071224;
+  --card:#0f1720;
+  --accent:#1f6feb;
+  --muted:#7fa3c7;
+  --ok:#2db85a;
+  --err:#e04d4d;
+  --glass: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  --block:#112033;
+  --block-contrast:#16324b;
+}
+
+/* 以下 省略せず元のCSS全文 */
