@@ -5,94 +5,101 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Group Tools — API Execute (V4: White Theme, Enhanced Loop)</title>
 <style>
+/* ------------------------------------------------ */
+/* ☀️ Light Theme v4 (Simplified Workflow) */
+/* ------------------------------------------------ */
 :root{
-  --bg: #f5f7fa;
-  --card: #ffffff;
-  --accent: #1f6feb;
-  --accent-dark: #104191;
-  --accent-light: #4c8fff;
-  --muted: #6c757d;
-  --text-primary: #212529;
-  --ok: #28a745;
-  --err: #dc3545;
-  --block: #e9ecef;
-  --block-contrast: #dee2e6;
-  --border: #dee2e6;
-  --border-strong: #ced4da;
-  --shadow: 0 4px 12px rgba(0,0,0,0.08);
+  --bg: #f5f7fa;             /* Main Light Background */
+  --card: #ffffff;           /* Card Background (White) */
+  --accent: #1f6feb;         /* Main Accent (Deep Blue) */
+  --accent-dark: #104191;    /* Darker Accent for Contrast/Hover */
+  --accent-light: #4c8fff;   /* Lighter Accent for Highlight */
+  --muted: #6c757d;          /* Muted Text (Gray) */
+  --text-primary: #212529;   /* Dark Text (High Contrast) */
+  --ok: #28a745;             /* Success (Green) */
+  --err: #dc3545;            /* Error (Red) */
+  --block: #e9ecef;          /* Palette Block Background (Light Gray) */
+  --block-contrast: #dee2e6; /* Workspace Block Background */
+  --border: #dee2e6;         /* Border/Divider (Light Gray) */
+  --border-strong: #ced4da; /* Stronger Border */
+  --shadow: 0 4px 12px rgba(0,0,0,0.08); /* Light Shadow */
 }
-html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text-primary);overflow:hidden;}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text-primary);overflow:hidden;} 
 header{
-    display:flex;justify-content:space-between;align-items:center;padding:12px 20px;
-    border-bottom:1px solid var(--border-strong);background:var(--card);flex-shrink:0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display:flex;justify-content:space-between;align-items:center;padding:12px 20px;
+    border-bottom:1px solid var(--border-strong);background:var(--card);flex-shrink:0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 h1{margin:0;font-size:22px;color:var(--text-primary)}
 .sub{font-size:14px;color:var(--muted)}
 
+/* 全体コンテナ: 3カラム (左:220, 中央:1fr, 右:350) */
 .main-layout{
-    display: flex;
-    height: calc(100vh - 68px);
-    padding: 16px;
-    gap: 16px;
-    overflow: hidden;
+    display: flex;
+    height: calc(100vh - 68px); /* ヘッダーの高さを引く */
+    padding: 16px;
+    gap: 16px;
+    overflow: hidden; 
 }
 .col-info {
-    width: 220px;
-    flex-shrink: 0;
+    width: 220px; /* 情報/ナビゲーションに特化 */
+    flex-shrink: 0;
 }
 .col-main {
-    flex-grow: 1;
-    min-width: 500px;
-    display: flex;
-    flex-direction: column;
+    flex-grow: 1; /* 中央を最も広く、可変 */
+    min-width: 500px;
+    display: flex;
+    flex-direction: column;
 }
 .col-side {
-    width: 350px;
-    flex-shrink: 0;
+    width: 350px; /* テンプレート、シーケンス、ログ管理 */
+    flex-shrink: 0;
 }
 
+/* カードスタイルとスクロール */
 .card{
-    background:var(--card);
-    padding:16px;
-    border-radius:12px;
-    border:1px solid var(--border);
-    box-shadow:var(--shadow);
-    height: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    background:var(--card);
+    padding:16px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+    height: 100%; 
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column; 
+    overflow: hidden; 
 }
 
+/* タブスイッチ */
 .main-tabs{ display:flex; margin-bottom:16px; border-bottom:1px solid var(--border-strong); }
 .main-tabs button {
-    padding: 10px 15px; border: none; background: transparent; color: var(--muted);
-    font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent;
-    transition: color 0.2s, border-bottom-color 0.2s;
+    padding: 10px 15px; border: none; background: transparent; color: var(--muted);
+    font-weight: 600; cursor: pointer; border-bottom: 3px solid transparent;
+    transition: color 0.2s, border-bottom-color 0.2s;
 }
 .main-tabs button.active {
-    color: var(--accent); border-bottom-color: var(--accent);
+    color: var(--accent); border-bottom-color: var(--accent);
 }
 #mainContentView {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 0 16px 16px 16px;
+    flex-grow: 1;
+    overflow-y: auto; 
+    padding: 0 16px 16px 16px;
 }
 #viewExec, #viewScratch { height: 100%; box-sizing: border-box; }
 
+/* Components */
 label{display:block;font-size:13px;color:var(--text-primary);font-weight:600;margin-top:10px}
 input[type=text], input[type=password], textarea, select{
-    width:100%;padding:8px;border-radius:6px;border:1px solid var(--border-strong);
-    background:var(--block);color:var(--text-primary);box-sizing:border-box;
-    transition:border-color 0.2s;font-size:14px;
+    width:100%;padding:8px;border-radius:6px;border:1px solid var(--border-strong);
+    background:var(--block);color:var(--text-primary);box-sizing:border-box;
+    transition:border-color 0.2s;font-size:14px;
 }
 input:focus, textarea:focus, select:focus {outline:none;border-color:var(--accent);background:#ffffff}
 textarea{min-height:60px;resize:vertical}
 .row{display:flex;gap:8px;align-items:center}
 button{
-    padding:8px 12px;border-radius:6px;border:none;background:var(--accent);
-    color:white;cursor:pointer;font-weight:600;transition:background 0.2s;
+    padding:8px 12px;border-radius:6px;border:none;background:var(--accent);
+    color:white;cursor:pointer;font-weight:600;transition:background 0.2s;
 }
 button:hover{background:var(--accent-dark)}
 button.ghost{background:transparent;border:1px solid var(--muted);color:var(--muted)}
@@ -106,30 +113,32 @@ button.small{padding:6px 10px;font-size:13px}
 .controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
 .title{font-weight:700;color:var(--text-primary);margin-bottom:8px;font-size:16px}
 .pill{
-    display:inline-block;padding:4px 8px;border-radius:8px;
-    background:var(--accent);font-size:13px;color:white;font-weight:600;
+    display:inline-block;padding:4px 8px;border-radius:8px;
+    background:var(--accent);font-size:13px;color:white;font-weight:600;
 }
 
+/* Token Select and Header */
 #headerControls {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 5px 0;
+    display: flex; 
+    align-items: center; 
+    gap: 15px;
+    padding: 5px 0;
 }
 #headerControls select { width: 150px; }
 
+/* API Info List (Left Column) */
 .info-list {
-    margin-top: 10px;
-    overflow-y: auto;
-    flex-grow: 1;
+    margin-top: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
 }
 .info-item {
-    padding: 10px;
-    border-radius: 6px;
-    margin-bottom: 6px;
-    cursor: pointer;
-    transition: background 0.2s;
-    border: 1px solid transparent;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: 1px solid transparent;
 }
 .info-item:hover { background: var(--block-contrast); border-color: var(--border-strong); }
 .info-item.active { background: var(--accent-light); color: white; border-color: var(--accent); }
@@ -137,318 +146,325 @@ button.small{padding:6px 10px;font-size:13px}
 .info-item strong { font-size: 14px; color: var(--accent-dark); }
 .info-item .small { font-size: 12px; }
 
-.img-preview {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
+/* 画像サイズ統一 */
+.img-preview { 
+    width: 30px; 
+    height: 30px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    flex-shrink: 0; 
 }
-#execForm img {
-    margin-top: 10px;
-    border: 1px solid var(--border-strong);
+#execForm img { 
+    margin-top: 10px; 
+    border: 1px solid var(--border-strong); 
 }
 .list-container .item .img-preview {
-    margin-top: 0;
+    margin-top: 0; 
 }
 
+/* Sequence Builder (rawAPI) */
 #scratchArea {
-    display: grid;
-    grid-template-columns: 80px 1fr;
-    gap: 16px;
-    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 80px 1fr; /* 簡略化したパレットとワークスペース */
+    gap: 16px;
+    flex-grow: 1;
 }
 .palette {
-    overflow: hidden;
-    background: var(--block);
-    padding: 12px;
-    border-radius: 8px;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    overflow: hidden; /* スクロールなし */
+    background: var(--block);
+    padding: 12px;
+    border-radius: 8px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 .palette .block {
-    padding: 10px;
-    width: 100%;
-    text-align: center;
-    background: var(--accent);
-    color: white;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    cursor: grab;
-    transition: background 0.2s;
-    font-size: 20px;
+    padding: 10px;
+    width: 100%;
+    text-align: center;
+    background: var(--accent);
+    color: white;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    cursor: grab;
+    transition: background 0.2s;
+    font-size: 20px; /* アイコンを想定 */
 }
+/* Loop blocks should have a distinct color */
 .palette .block[data-type^="loop"] {
-    background: #e3931c;
+    background: #e3931c; /* Orange color for Loop */
 }
 .palette .block:hover{background:var(--accent-dark)}
 .palette .block[data-type^="loop"]:hover{background: #c77b0d;}
 
 #workspace {
-    min-height: 300px;
-    border: 2px dashed var(--border-strong);
-    padding: 12px;
-    border-radius: 8px;
-    background: var(--block-contrast);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    overflow-y: auto;
-    align-items: stretch;
+    min-height: 300px;
+    border: 2px dashed var(--border-strong);
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--block-contrast); /* ワークスペースの背景を少し濃く */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto; 
+    align-items: stretch;
 }
 .wblock{
-    background:var(--card);
-    padding:10px 15px;
-    border-radius:8px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    cursor:grab;
-    border:1px solid var(--border);
-    box-shadow:0 0 0 0 transparent;
-    transition:box-shadow 0.1s, background 0.2s;
+    background:var(--card);
+    padding:10px 15px;
+    border-radius:8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    cursor:grab;
+    border:1px solid var(--border);
+    box-shadow:0 0 0 0 transparent;
+    transition:box-shadow 0.1s, background 0.2s;
 }
 .wblock:hover{box-shadow:0 0 0 2px var(--accent-light)}
 .wblock.selected{box-shadow:0 0 0 2px var(--accent) !important;}
 .wblock .meta{font-size:15px;font-weight:700;color:var(--accent)}
-.wblock[data-type^="loop"] .meta { color: #c77b0d; }
+.wblock[data-type^="loop"] .meta { color: #c77b0d; } /* Loop Meta Color */
 .wblock .summary{font-size:13px;color:var(--muted)}
 .wblock .btns button { background: var(--block-contrast); color: var(--text-primary); border: 1px solid var(--border); }
 .wblock .btns button:hover { background: var(--border); }
 .wblock .btns .danger:hover { background: var(--err); color: white; }
 
+/* Side Panel Tabs */
 .side-tabs {
-    display: flex;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 12px;
-    flex-shrink: 0;
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+    flex-shrink: 0;
 }
 .side-tabs button {
-    flex-grow: 1;
-    background: transparent;
-    color: var(--muted);
-    border-radius: 0;
-    border-bottom: 3px solid transparent;
+    flex-grow: 1;
+    background: transparent;
+    color: var(--muted);
+    border-radius: 0;
+    border-bottom: 3px solid transparent;
 }
 .side-tabs button.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
+    color: var(--accent);
+    border-bottom-color: var(--accent);
 }
 
+/* Config/Log within Side Panel */
 .config-container {
-    padding: 10px;
-    border-radius: 8px;
-    background: var(--block);
-    margin-top: 10px;
-    overflow-y: auto;
-    flex-shrink: 0;
+    padding: 10px;
+    border-radius: 8px;
+    background: var(--block);
+    margin-top: 10px;
+    overflow-y: auto;
+    flex-shrink: 0;
 }
 pre{
-    background: #f8f9fa;
-    padding:12px;
-    border-radius:8px;
-    color:var(--text-primary);
-    overflow:auto;
-    white-space:pre-wrap;
-    border:1px solid var(--border-strong);
-    font-size:12px;
-    flex-grow: 1;
-    min-height: 150px;
+    background: #f8f9fa;
+    padding:12px;
+    border-radius:8px;
+    color:var(--text-primary);
+    overflow:auto;
+    white-space:pre-wrap;
+    border:1px solid var(--border-strong);
+    font-size:12px;
+    flex-grow: 1; 
+    min-height: 150px;
 }
 #execLogContainer { margin-top: 15px; }
 
+/* Execute View */
 #execForm {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
-#execForm > div:last-child { grid-column: 1 / -1; }
+#execForm > div:last-child { grid-column: 1 / -1; } /* Actions */
 
 
+/* List Item Styles */
 .list-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 .list-container .item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 10px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--card);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
 }
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <h1>Group Tools — Easy API</h1>
-    <div class="sub">直感的で入力の少ない操作を追求</div>
-  </div>
-  <div id="headerControls">
-    <div class="row">
-        <span class="pill" style="background:var(--ok)">Token:</span>
-        <select id="selectToken"><option value="">--未選択--</option></select>
-    </div>
-    <button id="tokenManagementBtn" class="small ghost">🔑 トークン管理</button>
-  </div>
+  <div>
+    <h1>Group Tools — Easy API</h1>
+    <div class="sub">直感的で入力の少ない操作を追求</div>
+  </div>
+  <div id="headerControls">
+    <div class="row">
+        <span class="pill" style="background:var(--ok)">Token:</span>
+        <select id="selectToken"><option value="">--未選択--</option></select>
+    </div>
+    <button id="tokenManagementBtn" class="small ghost">🔑 トークン管理</button>
+  </div>
 </header>
 
 <div class="main-layout">
-      <div class="col-info">
-    <div class="card">
-      <div class="title">📋 Active API Information</div>
-      <div id="infoList" class="info-list">
-          <div class="info-item active"><strong>API / Task Select</strong><div class="small">Main task menu</div></div>
-          <div class="info-item"><strong>Current Variables</strong><div class="small">last_id: 123...</div></div>
-          <div class="info-item"><strong>Saved Templates</strong><div class="small">template_A, template_B</div></div>
-      </div>
-    </div>
-  </div>
+      <div class="col-info">
+    <div class="card">
+      <div class="title">📋 Active API Information</div>
+      <div id="infoList" class="info-list">
+          <div class="info-item active"><strong>API / Task Select</strong><div class="small">Main task menu</div></div>
+          <div class="info-item"><strong>Current Variables</strong><div class="small">last_id: 123...</div></div>
+          <div class="info-item"><strong>Saved Templates</strong><div class="small">template_A, template_B</div></div>
+      </div>
+    </div>
+  </div>
 
-      <div class="col-main card" style="padding:0; overflow:hidden;">
-        <div class="main-tabs">
-            <button id="tabExec" class="active">👥 Group Creation (簡易実行)</button>
-            <button id="tabScratch">🛠️ Sequence Builder (高度な自動化)</button>
-        </div>
+      <div class="col-main card" style="padding:0; overflow:hidden;">
+        <div class="main-tabs">
+            <button id="tabExec" class="active">👥 Group Creation (簡易実行)</button>
+            <button id="tabScratch">🛠️ Sequence Builder (高度な自動化)</button>
+        </div>
 
-        <div id="mainContentView">
-            <div id="viewExec" class="active-view">
-                <div id="execForm">
-                    <div>
-                        <div class="title">Template Selection & Parameters</div>
-                        <label>利用するテンプレート</label>
-                        <select id="exec_template_select"><option value="">--テンプレートを選択--</option></select>
-                       
-                        <label>Recipients (カンマ区切り)</label>
-                        <input id="exec_recipients" type="text" placeholder="手動入力またはテンプレートからロード" />
-                       
-                        <label>Optional Group Name</label>
-                        <input id="exec_name" type="text" placeholder="グループ名" />
-                       
-                        <label>Count (作成数)</label>
-                        <input id="exec_count" type="number" value="1" min="1" />
-                       
-                        <div class="controls">
-                            <button id="saveTemplate" class="small ok">現在の設定をテンプレートとして保存</button>
-                        </div>
-                    </div>
-                   
-                    <div>
-                        <div class="title">Preview & Confirmation</div>
-                        <div class="row">
-                            <img id="iconPreview" class="img-preview" alt="Icon" />
-                            <div style="flex:1">
-                                <label style="margin-top:0;">Group Icon</label>
-                                <input id="iconFile" type="file" accept="image/*" class="small" />
-                                <button id="removeIcon" class="small ghost" style="margin-top:5px">アイコン削除</button>
-                            </div>
-                        </div>
-                        <label style="margin-top:15px"><input type="checkbox" id="consentExec" /> 実行リスクを理解し、同意します</label>
-                        <div class="controls">
-                            <button id="btnExec" class="ok" style="font-size:16px;">🚀 実行 (Create Groups)</button>
-                        </div>
-    　　　　　　　　　</div>
-                   
-                    <div id="execLogContainer">
-                        <div class="title">実行ログ / APIレスポンス</div>
-                        <pre id="execLog">—</pre>
-          　　　　　　</div>
-                </div>
-            </div>
-           
-            <div id="viewScratch" style="display:none;">
-                <div id="scratchTopControls" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <div class="row">
-                        <input id="seqName" type="text" placeholder="Sequence名" style="width:180px" />
-                        <button id="saveSeq" class="small ok">Sequence 保存</button>
-                        <button id="runSeq" class="ok">実行</button>
-                    </div>
-                    <div class="controls" style="margin:0;">
-                        <button id="clearWorkspace" class="ghost small">クリア</button>
-                        <button id="btnStop" class="danger small" style="display:none">停止</button>
-      　　　　　　　　　</div>
-                </div>
-               
-                <div id="scratchArea">
-                    <div class="palette">
-                        <div class="title" style="font-size:14px; margin-top:0;">Blocks</div>
-                        <div class="block" draggable="true" data-type="api" title="API Call">📡</div>
-                        <div class="block" draggable="true" data-type="wait" title="Wait (Delay)">⏱️</div>
-                        <div class="block" draggable="true" data-type="loop_start" title="Loop Start">▶️</div>
-                        <div class="block" draggable="true" data-type="loop_end" title="Loop End">⏹️</div>
-                        <div class="block" draggable="true" data-type="cond" title="If Condition">❓</div>
-                        <div class="block" draggable="true" data-type="comment" title="Comment">💬</div>
-                    </div>
-                    <div id="workspace" ondragover="event.preventDefault()">
-                        <div class="muted" style="text-align:center; padding-top:50px">ここにブロックをドラッグ＆ドロップしてください</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-  </div>
-   
-    <div class="col-side card">
-        <div class="side-tabs">
-            <button id="tabSideTemplates" class="active">📝 テンプレート</button>
-            <button id="tabSideSequences">⚙️ シーケンス</button>
-            <button id="tabSideConfig">💡 ブロック設定/ログ</button>
-        </div>
+        <div id="mainContentView">
+            <div id="viewExec" class="active-view">
+                <div id="execForm">
+                    <div>
+                        <div class="title">Template Selection & Parameters</div>
+                        <label>利用するテンプレート</label>
+                        <select id="exec_template_select"><option value="">--テンプレートを選択--</option></select>
+                        
+                        <label>Recipients (カンマ区切り)</label>
+                        <input id="exec_recipients" type="text" placeholder="手動入力またはテンプレートからロード" />
+                        
+                        <label>Optional Group Name</label>
+                        <input id="exec_name" type="text" placeholder="グループ名" />
+                        
+                        <label>Count (作成数)</label>
+                        <input id="exec_count" type="number" value="1" min="1" />
+                        
+                        <div class="controls">
+                            <button id="saveTemplate" class="small ok">現在の設定をテンプレートとして保存</button>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="title">Preview & Confirmation</div>
+                        <div class="row">
+                            <img id="iconPreview" class="img-preview" alt="Icon" />
+                            <div style="flex:1">
+                                <label style="margin-top:0;">Group Icon</label>
+                                <input id="iconFile" type="file" accept="image/*" class="small" />
+                                <button id="removeIcon" class="small ghost" style="margin-top:5px">アイコン削除</button>
+                            </div>
+                        </div>
+                        <label style="margin-top:15px"><input type="checkbox" id="consentExec" /> 実行リスクを理解し、同意します</label>
+                        <div class="controls">
+                            <button id="btnExec" class="ok" style="font-size:16px;">🚀 実行 (Create Groups)</button>
+                        </div>
+                    </div>
+                    
+                    <div id="execLogContainer">
+                        <div class="title">実行ログ / APIレスポンス</div>
+                        <pre id="execLog">—</pre>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="viewScratch" style="display:none;">
+                <div id="scratchTopControls" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <div class="row">
+                        <input id="seqName" type="text" placeholder="Sequence名" style="width:180px" />
+                        <button id="saveSeq" class="small ok">Sequence 保存</button>
+                        <button id="runSeq" class="ok">実行</button>
+                    </div>
+                    <div class="controls" style="margin:0;">
+                        <button id="clearWorkspace" class="ghost small">クリア</button>
+                        <button id="btnStop" class="danger small" style="display:none">停止</button>
+                    </div>
+                </div>
+                
+                <div id="scratchArea">
+                    <div class="palette">
+                        <div class="title" style="font-size:14px; margin-top:0;">Blocks</div>
+                        <div class="block" draggable="true" data-type="api" title="API Call">📡</div>
+                        <div class="block" draggable="true" data-type="wait" title="Wait (Delay)">⏱️</div>
+                        <div class="block" draggable="true" data-type="loop_start" title="Loop Start">▶️</div>
+                        <div class="block" draggable="true" data-type="loop_end" title="Loop End">⏹️</div>
+                        <div class="block" draggable="true" data-type="cond" title="If Condition">❓</div>
+                        <div class="block" draggable="true" data-type="comment" title="Comment">💬</div>
+                    </div>
+                    <div id="workspace" ondragover="event.preventDefault()">
+                        <div class="muted" style="text-align:center; padding-top:50px">ここにブロックをドラッグ＆ドロップしてください</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+  </div>
+    
+    <div class="col-side card">
+        <div class="side-tabs">
+            <button id="tabSideTemplates" class="active">📝 テンプレート</button>
+            <button id="tabSideSequences">⚙️ シーケンス</button>
+            <button id="tabSideConfig">💡 ブロック設定/ログ</button>
+        </div>
 
-        <div class="side-content" style="flex-grow:1; overflow-y:auto; padding-top:5px;">
-            <div id="sideTemplates" class="active">
-                <div class="title">保存済 Group Templates (クリックで利用)</div>
-                <div id="groupList" class="list-container" style="max-height: calc(100vh - 200px); overflow-y: auto;"></div>
-            </div>
-           
-            <div id="sideSequences" style="display:none;">
-                <div class="title">保存済 Sequences (クリックでワークスペースにロード)</div>
-                <div id="seqList" class="list-container" style="max-height: calc(100vh - 200px); overflow-y: auto;"></div>
-                <div class="controls">
-                    <button id="exportSeq" class="small ghost">Export</button>
-                    <button id="importSeq" class="small ghost">Import</button>
-                </div>
-            </div>
+        <div class="side-content" style="flex-grow:1; overflow-y:auto; padding-top:5px;">
+            <div id="sideTemplates" class="active">
+                <div class="title">保存済 Group Templates (クリックで利用)</div>
+                <div id="groupList" class="list-container" style="max-height: calc(100vh - 200px); overflow-y: auto;"></div>
+            </div>
+            
+            <div id="sideSequences" style="display:none;">
+                <div class="title">保存済 Sequences (クリックでワークスペースにロード)</div>
+                <div id="seqList" class="list-container" style="max-height: calc(100vh - 200px); overflow-y: auto;"></div>
+                <div class="controls">
+                    <button id="exportSeq" class="small ghost">Export</button>
+                    <button id="importSeq" class="small ghost">Import</button>
+                </div>
+            </div>
 
-            <div id="sideConfig" style="display:none; height:100%; display:flex; flex-direction:column;">
-                <div id="blockConfigWrap" style="display:none;">
-                    <div class="title">Selected Block Configuration</div>
-                    <div id="blockConfig" class="config-container" style="max-height: 250px;">選択したブロックのプロパティを編集できます</div>
-                </div>
-               
-                <div class="title" style="margin-top:10px">Sequence Preview (JSON)</div>
-          　　　<pre id="seqPreview" style="max-height:100px; flex-shrink:0;">[]</pre>
+            <div id="sideConfig" style="display:none; height:100%; display:flex; flex-direction:column;">
+                <div id="blockConfigWrap" style="display:none;">
+                    <div class="title">Selected Block Configuration</div>
+                    <div id="blockConfig" class="config-container" style="max-height: 250px;">選択したブロックのプロパティを編集できます</div>
+                </div>
+                
+                <div class="title" style="margin-top:10px">Sequence Preview (JSON)</div>
+                <pre id="seqPreview" style="max-height:100px; flex-shrink:0;">[]</pre>
 
-                <div id="scratchLogContainer" style="flex-grow:1; display:flex; flex-direction:column;">
-                    <div class="title" style="margin-top:10px">Current Variables (Context)</div>
-                    <pre id="contextView" style="max-height:100px; min-height:50px; flex-shrink:0;">{}</pre>
-                    <div class="title">Sequence Log</div>
-                    <pre id="scratchLog" style="flex-grow:1;">—</pre>
-                </div>
-            </div>
-        </div>
-    </div>
+                <div id="scratchLogContainer" style="flex-grow:1; display:flex; flex-direction:column;">
+                    <div class="title" style="margin-top:10px">Current Variables (Context)</div>
+                    <pre id="contextView" style="max-height:100px; min-height:50px; flex-shrink:0;">{}</pre>
+                    <div class="title">Sequence Log</div>
+                    <pre id="scratchLog" style="flex-grow:1;">—</pre>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <footer>Local only — tokens, templates & sequences saved to localStorage</footer>
 
 <div id="tokenModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
-    <div class="card" style="width:400px; height:auto; padding:20px;">
-        <div class="title">🔑 トークン管理</div>
-        <label>Label</label><input id="modalTokenLabel" type="text" placeholder="label" />
-        <label>Token</label><input id="modalTokenValue" type="password" placeholder="user token" />
-        <div class="controls">
-            <button id="modalSaveToken" class="small ok">保存</button>
-            <button id="modalCloseToken" class="small ghost">閉じる</button>
-            <button id="clearTokens" class="small danger">全部削除</button>
-        </div>
-        <div class="muted" style="margin-top:15px">保存済トークン</div>
-        <div id="tokenList" class="list-container" style="max-height:200px;"></div>
-    </div>
+    <div class="card" style="width:400px; height:auto; padding:20px;">
+        <div class="title">🔑 トークン管理</div>
+        <label>Label</label><input id="modalTokenLabel" type="text" placeholder="label" />
+        <label>Token</label><input id="modalTokenValue" type="password" placeholder="user token" />
+        <div class="controls">
+            <button id="modalSaveToken" class="small ok">保存</button>
+            <button id="modalCloseToken" class="small ghost">閉じる</button>
+            <button id="clearTokens" class="small danger">全部削除</button>
+        </div>
+        <div class="muted" style="margin-top:15px">保存済トークン</div>
+        <div id="tokenList" class="list-container" style="max-height:200px;"></div>
+    </div>
 </div>
 
 
@@ -460,772 +476,738 @@ let DB = loadDB();
 const $ = id => document.getElementById(id);
 function logLineExec(s){ const el = $('execLog'); el.textContent = (el.textContent === '—' ? '' : el.textContent) + '['+new Date().toLocaleTimeString()+'] ' + s + '\n'; el.scrollTop = el.scrollHeight; }
 function logLineScratch(s){ const el = $('scratchLog'); el.textContent = (el.textContent === '—' ? '' : el.textContent) + '['+new Date().toLocaleTimeString()+'] ' + s + '\n'; el.scrollTop = el.scrollHeight; }
-function appendLog(s){
-    const isScratch = $('viewScratch').style.display !== 'none';
-    if (!isScratch) logLineExec(s);
-    if (isScratch) logLineScratch(s);
+function appendLog(s){ 
+    const isScratch = $('viewScratch').style.display !== 'none';
+    if (!isScratch) logLineExec(s); 
+    if (isScratch) logLineScratch(s); 
 }
 $('iconFile').addEventListener('change', (e)=>{ const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ()=>{ DB.icon = r.result; saveDB(); $('iconPreview').src = DB.icon; appendLog('Icon saved'); }; r.readAsDataURL(f); });
 $('removeIcon').onclick = ()=>{ DB.icon = null; saveDB(); $('iconPreview').src=''; };
 function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 
+// --- V3のSequence実行ロジック群を統合 ---
 function isJson(str) { try { JSON.parse(str); } catch (e) { return false; } return true; }
 
 function injectVariables(input, context) {
-    if (typeof input !== 'string') return input;
-    const regex = /\{\{(\w+)\}\}/g;
-    return input.replace(regex, (match, varName) => {
-        const value = context[varName];
-        if (value === undefined || value === null) {
-            return match;
-        }
-        return String(value);
-    });
+    if (typeof input !== 'string') return input;
+    const regex = /\{\{(\w+)\}\}/g;
+    return input.replace(regex, (match, varName) => {
+        const value = context[varName];
+        if (value === undefined || value === null) {
+            return match; 
+        }
+        return String(value);
+    });
 }
 
 function extractValue(responseJson, path) {
-    if (!responseJson || !path) return undefined;
-    let parts = path.trim().replace(/^\./, '');
-   
-    if (parts.startsWith('[0]')) {
-        if (Array.isArray(responseJson) && responseJson.length > 0) {
-            responseJson = responseJson[0];
-            parts = parts.substring(3).replace(/^\./, '');
-        } else {
-            return undefined;
-        }
-    } else if (parts.startsWith('[0].')) {
-         if (Array.isArray(responseJson) && responseJson.length > 0) {
-            responseJson = responseJson[0];
-            parts = parts.substring(4);
-        } else {
-            return undefined;
-        }
-    }
-   
-    if (!parts) return responseJson;
-   
-    parts = parts.split('.');
-    let current = responseJson;
+    if (!responseJson || !path) return undefined;
+    let parts = path.trim().replace(/^\./, ''); 
+    
+    if (parts.startsWith('[0]')) {
+        if (Array.isArray(responseJson) && responseJson.length > 0) {
+            responseJson = responseJson[0];
+            parts = parts.substring(3).replace(/^\./, ''); 
+        } else {
+            return undefined; 
+        }
+    } else if (parts.startsWith('[0].')) {
+         if (Array.isArray(responseJson) && responseJson.length > 0) {
+            responseJson = responseJson[0];
+            parts = parts.substring(4); 
+        } else {
+            return undefined; 
+        }
+    }
+    
+    if (!parts) return responseJson; 
+    
+    parts = parts.split('.');
+    let current = responseJson;
 
-    for (const part of parts) {
-        if (current === undefined || current === null) return undefined;
-        current = current[part];
-    }
-    return current;
+    for (const part of parts) {
+        if (current === undefined || current === null) return undefined;
+        current = current[part];
+    }
+    return current;
 }
 
 async function fetchWithRetry(url, options, token) {
-    const maxRetries = 3;
-    const headers = options.headers || {};
-   
-    if (token) {
-        headers['Authorization'] = token;
-    }
-    headers['Content-Type'] = 'application/json';
+    const maxRetries = 3;
+    const headers = options.headers || {};
+    
+    if (token) {
+        headers['Authorization'] = token;
+    }
+    headers['Content-Type'] = 'application/json';
 
-    for (let i = 0; i < maxRetries; i++) {
-        try {
-            const response = await fetch(url, { ...options, headers: headers });
-           
-            if (response.status === 429) {
-                const retryAfter = Number(response.headers.get('Retry-After')) || 1;
-                appendLog(`[API WARNING] 429 Rate Limit. Retrying in ${retryAfter} seconds...`);
-                await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
-                continue;
-            }
-            return response;
-        } catch (error) {
-            if (i < maxRetries - 1) {
-                appendLog(`[API ERROR] Network error. Retrying in 2 seconds... (${error.message})`);
-                await new Promise(resolve => setTimeout(resolve, 2000));
-            } else {
-                throw new Error(`APIコール失敗 (${url}): ${error.message}`);
-            }
-        }
-    }
-    throw new Error('APIコールが最大リトライ回数を超過しました。');
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const response = await fetch(url, { ...options, headers: headers });
+            
+            if (response.status === 429) {
+                const retryAfter = Number(response.headers.get('Retry-After')) || 1;
+                appendLog(`[API WARNING] 429 Rate Limit. Retrying in ${retryAfter} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+                continue; 
+            }
+            return response; 
+        } catch (error) {
+            if (i < maxRetries - 1) {
+                appendLog(`[API ERROR] Network error. Retrying in 2 seconds... (${error.message})`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            } else {
+                throw new Error(`APIコール失敗 (${url}): ${error.message}`);
+            }
+        }
+    }
+    throw new Error('APIコールが最大リトライ回数を超過しました。');
 }
 
 function compareValues(a, b) {
-    let valA = a;
-    let valB = b;
-   
-    if (!isNaN(Number(valA)) && !isNaN(Number(valB))) {
-        valA = Number(valA);
-        valB = Number(valB);
-    }
-   
-    return valA === valB;
+    let valA = a;
+    let valB = b;
+    
+    if (!isNaN(Number(valA)) && !isNaN(Number(valB))) {
+        valA = Number(valA);
+        valB = Number(valB);
+    }
+    
+    return valA === valB;
 }
 
 let runStopFlag = false;
-window._scratch_context = {};
+window._scratch_context = {}; 
 function refreshContextView() { $('contextView').textContent = JSON.stringify(window._scratch_context, null, 2); }
 
+// --- 強化された Sequence 実行ロジック ---
 async function runSequence(sequence, token) {
-    const loopStack = [];
-    let i = 0;
-    window._scratch_context.status = undefined;
+    const loopStack = []; // { start: index, count: total, current: done }
+    let i = 0;
+    window._scratch_context.status = undefined; // 実行ごとにリセット
 
-    while (i < sequence.length) {
-        if (runStopFlag) {
-            appendLog('Sequence 実行をユーザーリクエストにより停止しました。');
-            return;
-        }
+    while (i < sequence.length) {
+        if (runStopFlag) {
+            appendLog('Sequence 実行をユーザーリクエストにより停止しました。');
+            return;
+        }
 
-        const block = sequence[i];
-        const props = block.props || {};
-       
-        appendLog(`-> [${i + 1}/${sequence.length}] ${summaryForBlock(block)}`);
+        const block = sequence[i];
+        const props = block.props || {};
+        
+        appendLog(`-> [${i + 1}/${sequence.length}] ${summaryForBlock(block)}`);
 
-        switch (block.type) {
-            case 'api':
-                try {
-                    const url = 'https://discord.com/api/v9' + injectVariables(props.path, window._scratch_context);
-                    const method = props.method || 'GET';
-                   
-                    let bodyJson = null;
-                    if (props.body) {
-                        const bodyStr = injectVariables(JSON.stringify(props.body), window._scratch_context);
-                        if (isJson(bodyStr)) {
-                            bodyJson = JSON.parse(bodyStr);
-                        } else {
-                            throw new Error('Body JSON 展開後が無効です: ' + bodyStr);
-                        }
-                    }
+        switch (block.type) {
+            case 'api':
+                try {
+                    const url = 'https://discord.com/api/v9' + injectVariables(props.path, window._scratch_context);
+                    const method = props.method || 'GET';
+                    
+                    let bodyJson = null;
+                    if (props.body) {
+                        const bodyStr = injectVariables(JSON.stringify(props.body), window._scratch_context);
+                        if (isJson(bodyStr)) {
+                            bodyJson = JSON.parse(bodyStr);
+                        } else {
+                            throw new Error('Body JSON 展開後が無効です: ' + bodyStr);
+                        }
+                    }
 
-                    const res = await fetchWithRetry(url, {
-                        method: method,
-                        body: bodyJson ? JSON.stringify(bodyJson) : null
-                    }, token);
+                    const res = await fetchWithRetry(url, {
+                        method: method,
+                        body: bodyJson ? JSON.stringify(bodyJson) : null
+                    }, token);
 
-                    const jtxt = await res.text().catch(() => null);
-                    let j = null;
-                    let logDetails = '';
+                    const jtxt = await res.text().catch(() => null);
+                    let j = null;
+                    let logDetails = '';
 
-                    try {
-                        j = jtxt && jtxt.trim() ? JSON.parse(jtxt) : null;
-                    } catch (e) {
-                    }
-                   
-                    window._scratch_context.status = res.status;
-                   
-                    if (j) {
-                        logDetails = jtxt.length > 100 ? JSON.stringify(j).slice(0, 100) + '...' : jtxt;
-                    } else if (jtxt) {
-                         logDetails = jtxt.length > 100 ? jtxt.slice(0, 100) + '...' : jtxt;
-                    } else {
-                        logDetails = '(No Content)';
-                    }
-                   
-                    appendLog(`[API res] ${res.status} ${logDetails}`);
+                    try {
+                        j = jtxt && jtxt.trim() ? JSON.parse(jtxt) : null;
+                    } catch (e) {
+                        // JSONデコードエラーは無視
+                    }
+                    
+                    window._scratch_context.status = res.status; 
+                    
+                    if (j) {
+                        logDetails = jtxt.length > 100 ? JSON.stringify(j).slice(0, 100) + '...' : jtxt;
+                    } else if (jtxt) {
+                         logDetails = jtxt.length > 100 ? jtxt.slice(0, 100) + '...' : jtxt;
+                    } else {
+                        logDetails = '(No Content)';
+                    }
+                    
+                    appendLog(`[API res] ${res.status} ${logDetails}`);
 
-                    if (props.extract && props.extract.var && props.extract.path && j) {
-                        const extracted = extractValue(j, props.extract.path);
-                        if (extracted !== undefined) {
-                            window._scratch_context[props.extract.var] = extracted;
-                            appendLog(`[EXTRACT OK] ${props.extract.var} = ${extracted}`);
-                        } else {
-                            appendLog(`[EXTRACT FAIL] Path ${props.extract.path} not found`);
-                        }
-                        refreshContextView();
-                    }
-                } catch (e) {
-                    appendLog(`[API CALL ERROR] ${e.message}`);
-                    throw e;
-                }
-                i++;
-                break;
+                    // Extract Value 処理
+                    if (props.extract && props.extract.var && props.extract.path && j) {
+                        const extracted = extractValue(j, props.extract.path);
+                        if (extracted !== undefined) {
+                            window._scratch_context[props.extract.var] = extracted;
+                            appendLog(`[EXTRACT OK] ${props.extract.var} = ${extracted}`);
+                        } else {
+                            appendLog(`[EXTRACT FAIL] Path ${props.extract.path} not found`);
+                        }
+                        refreshContextView();
+                    }
+                } catch (e) {
+                    appendLog(`[API CALL ERROR] ${e.message}`);
+                    throw e; 
+                }
+                i++;
+                break;
 
-            case 'wait':
-                const delay = (Number(props.sec) || 1) * 1000;
-                appendLog(`Waiting for ${props.sec} seconds...`);
-                await new Promise(resolve => setTimeout(resolve, delay));
-                i++;
-                break;
-               
-            case 'cond':
-                let conditionMet = false;
-                const targetVar = props.variable || 'status';
-                const requiredValue = props.value !== undefined ? props.value : 200;
-               
-                let actualValue;
-                if (targetVar === 'status') {
-                    actualValue = window._scratch_context.status;
-                } else {
-                    const varKey = injectVariables(`{{${targetVar}}}`, window._scratch_context);
-                    actualValue = varKey !== `{{${targetVar}}}` ? window._scratch_context[varKey] : window._scratch_context[targetVar];
-                }
+            case 'wait':
+                const delay = (Number(props.sec) || 1) * 1000;
+                appendLog(`Waiting for ${props.sec} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                i++;
+                break;
+                
+            case 'cond':
+                let conditionMet = false;
+                const targetVar = props.variable || 'status';
+                const requiredValue = props.value !== undefined ? props.value : 200; 
+                
+                let actualValue;
+                if (targetVar === 'status') {
+                    actualValue = window._scratch_context.status;
+                } else {
+                    const varKey = injectVariables(`{{${targetVar}}}`, window._scratch_context);
+                    actualValue = varKey !== `{{${targetVar}}}` ? window._scratch_context[varKey] : window._scratch_context[targetVar];
+                }
 
-                if (actualValue !== undefined && compareValues(actualValue, requiredValue)) {
-                    conditionMet = true;
-                    appendLog(`[CONDITION OK] ${targetVar} (${actualValue}) == ${requiredValue}`);
-                } else {
-                    appendLog(`[CONDITION FAIL] ${targetVar} (${actualValue}) != ${requiredValue}`);
-                }
+                if (actualValue !== undefined && compareValues(actualValue, requiredValue)) {
+                    conditionMet = true;
+                    appendLog(`[CONDITION OK] ${targetVar} (${actualValue}) == ${requiredValue}`);
+                } else {
+                    appendLog(`[CONDITION FAIL] ${targetVar} (${actualValue}) != ${requiredValue}`);
+                }
 
-                if (conditionMet) {
-                    i++;
-                } else {
-                    i++;
-                }
-                break;
+                if (conditionMet) {
+                    i++; // 条件が満たされたら次に進む
+                } else {
+                    i++; // 条件が満たされない場合、次のブロックに進む (スキップ機能は未実装)
+                }
+                break;
 
-            case 'loop_start':
-                const count = Number(props.count) || 1;
-               
-                if (loopStack.length === 0 || loopStack[loopStack.length - 1].start !== i) {
-                    loopStack.push({
-                        start: i,
-                        count: count,
-                        current: 0
-                    });
-                } else if (loopStack[loopStack.length - 1].current >= count) {
-                    appendLog(`Loop ${loopStack.length} Finished. Skipping to end...`);
-                    const startIndex = i;
-                    let nestingLevel = 1;
-                    let foundEnd = false;
-                   
-                    for (let j = i + 1; j < sequence.length; j++) {
-                        if (sequence[j].type === 'loop_start') nestingLevel++;
-                        if (sequence[j].type === 'loop_end') nestingLevel--;
-                       
-                        if (nestingLevel === 0) {
-                            i = j + 1;
-                            loopStack.pop();
-                            foundEnd = true;
-                            break;
-                        }
-                    }
-                    if (!foundEnd) throw new Error('Loop Start に対応する Loop End が見つかりません。');
-                   
-                    break;
-                }
-                i++;
-                break;
-               
-            case 'loop_end':
-                if (loopStack.length === 0) {
-                    throw new Error('Loop End が Loop Start に対応していません。');
-                }
-               
-                const currentLoop = loopStack[loopStack.length - 1];
-                currentLoop.current++;
+            case 'loop_start':
+                const count = Number(props.count) || 1;
+                
+                if (loopStack.length === 0 || loopStack[loopStack.length - 1].start !== i) {
+                    // 新しいループを開始
+                    loopStack.push({ 
+                        start: i, 
+                        count: count, 
+                        current: 0 
+                    });
+                } else if (loopStack[loopStack.length - 1].current >= count) {
+                     // ループ回数が終了している場合、loop_endを探してスキップ
+                    appendLog(`Loop ${loopStack.length} Finished. Skipping to end...`);
+                    const startIndex = i;
+                    let nestingLevel = 1;
+                    let foundEnd = false;
+                    
+                    for (let j = i + 1; j < sequence.length; j++) {
+                        if (sequence[j].type === 'loop_start') nestingLevel++;
+                        if (sequence[j].type === 'loop_end') nestingLevel--;
+                        
+                        if (nestingLevel === 0) {
+                            i = j + 1; // loop_endの次へ移動
+                            loopStack.pop(); // スタックから削除
+                            foundEnd = true;
+                            break;
+                        }
+                    }
+                    if (!foundEnd) throw new Error('Loop Start に対応する Loop End が見つかりません。');
+                    
+                    break; // スキップ処理が終わったので次のwhileへ
+                }
+                // 次のブロックに進む
+                i++;
+                break;
+                
+            case 'loop_end':
+                if (loopStack.length === 0) {
+                    throw new Error('Loop End が Loop Start に対応していません。');
+                }
+                
+                const currentLoop = loopStack[loopStack.length - 1];
+                currentLoop.current++;
 
-                if (currentLoop.current < currentLoop.count) {
-                    i = currentLoop.start;
-                    appendLog(`Loop ${currentLoop.current + 1}/${currentLoop.count} - Restarting...`);
-                } else {
-                    loopStack.pop();
-                    i++;
-                    appendLog('Loop Ended.');
-                }
-                break;
-               
-            case 'comment':
-                i++;
-                break;
+                if (currentLoop.current < currentLoop.count) {
+                    // 継続: ループ開始位置に戻る
+                    i = currentLoop.start;
+                    appendLog(`Loop ${currentLoop.current + 1}/${currentLoop.count} - Restarting...`);
+                } else {
+                    // 終了: ループをポップし、次に進む
+                    loopStack.pop();
+                    i++;
+                    appendLog('Loop Ended.');
+                }
+                break;
+                
+            case 'comment':
+                i++;
+                break;
 
-            default:
-                appendLog(`[WARNING] Unknown block type: ${block.type}`);
-                i++;
-        }
-    }
+            default:
+                appendLog(`[WARNING] Unknown block type: ${block.type}`);
+                i++;
+        }
+    }
 }
+// --- Sequence実行ロジック群 統合終了 ---
 
+
+// --- Token Management (Modal) ---
 $('tokenManagementBtn').onclick = () => $('tokenModal').style.display = 'flex';
 $('modalCloseToken').onclick = () => $('tokenModal').style.display = 'none';
 
-function refreshTokenUI(){
-    const list = $('tokenList'); list.innerHTML='';
-    const sel = $('selectToken'); sel.innerHTML='<option value="">--未選択--</option>';
-    Object.entries(DB.tokens||{}).forEach(([id,t])=>{
-        const div = document.createElement('div'); div.className='item';
-        div.innerHTML = `<div><strong>${escapeHtml(t.label||id)}</strong><div class="small">••••${t.token?t.token.slice(-6):'(empty)'}</div></div><div style="display:flex;gap:6px"><button data-id="${id}" class="useBtn small ok">選択</button><button data-id="${id}" class="delBtn small danger">削除</button></div>`;
-        list.appendChild(div);
-        const opt = document.createElement('option'); opt.value = id; opt.textContent = t.label||id; sel.appendChild(opt);
-    });
-    Array.from(document.getElementsByClassName('useBtn')).forEach(b=> b.onclick = ()=> {
-        $('selectToken').value = b.dataset.id;
-        $('tokenModal').style.display = 'none';
-        appendLog(`Token selected: ${DB.tokens[b.dataset.id].label}`);
-    });
-    Array.from(document.getElementsByClassName('delBtn')).forEach(b=> b.onclick = ()=> {
-        if(confirm('削除しますか？')){ delete DB.tokens[b.dataset.id]; saveDB(); refreshTokenUI(); }
-    });
-    if (DB.icon) $('iconPreview').src = DB.icon;
+function refreshTokenUI(){ 
+    const list = $('tokenList'); list.innerHTML=''; 
+    const sel = $('selectToken'); sel.innerHTML='<option value="">--未選択--</option>'; 
+    Object.entries(DB.tokens||{}).forEach(([id,t])=>{ 
+        const div = document.createElement('div'); div.className='item'; 
+        div.innerHTML = `<div><strong>${escapeHtml(t.label||id)}</strong><div class="small">••••${t.token?t.token.slice(-6):'(empty)'}</div></div><div style="display:flex;gap:6px"><button data-id="${id}" class="useBtn small ok">選択</button><button data-id="${id}" class="delBtn small danger">削除</button></div>`; 
+        list.appendChild(div); 
+        const opt = document.createElement('option'); opt.value = id; opt.textContent = t.label||id; sel.appendChild(opt); 
+    }); 
+    Array.from(document.getElementsByClassName('useBtn')).forEach(b=> b.onclick = ()=> { 
+        $('selectToken').value = b.dataset.id; 
+        $('tokenModal').style.display = 'none';
+        appendLog(`Token selected: ${DB.tokens[b.dataset.id].label}`);
+    }); 
+    Array.from(document.getElementsByClassName('delBtn')).forEach(b=> b.onclick = ()=> { 
+        if(confirm('削除しますか？')){ delete DB.tokens[b.dataset.id]; saveDB(); refreshTokenUI(); } 
+    }); 
+    // 初回ロード時のアイコン表示
+    if (DB.icon) $('iconPreview').src = DB.icon;
 }
-$('modalSaveToken').onclick = ()=>{
-    const lbl = $('modalTokenLabel').value.trim();
-    const tok = $('modalTokenValue').value.trim();
-    if(!lbl||!tok){ alert('label と token を入力'); return; }
-    const id = 't_'+Date.now(); DB.tokens = DB.tokens || {};
-    DB.tokens[id] = {label:lbl, token:tok}; saveDB(); refreshTokenUI();
-    $('modalTokenLabel').value=''; $('modalTokenValue').value='';
-    appendLog(`Token saved: ${lbl}`);
+$('modalSaveToken').onclick = ()=>{ 
+    const lbl = $('modalTokenLabel').value.trim(); 
+    const tok = $('modalTokenValue').value.trim(); 
+    if(!lbl||!tok){ alert('label と token を入力'); return; } 
+    const id = 't_'+Date.now(); DB.tokens = DB.tokens || {}; 
+    DB.tokens[id] = {label:lbl, token:tok}; saveDB(); refreshTokenUI(); 
+    $('modalTokenLabel').value=''; $('modalTokenValue').value=''; 
+    appendLog(`Token saved: ${lbl}`);
 };
 $('clearTokens').onclick = ()=>{ if(confirm('トークンをすべて削除しますか？')){ DB.tokens={}; saveDB(); refreshTokenUI(); } };
 
-function refreshTplUI(){
-    const out = $('groupList'); out.innerHTML='';
-    Object.entries(DB.templates||{}).forEach(([id, t])=>{
-        const div = document.createElement('div'); div.className='item'; div.dataset.id = id;
-        div.onclick = () => loadTemplate(id);
-        const recipientCount = t.recipients ? t.recipients.split(',').filter(r => r.trim()).length : 0;
-        div.innerHTML = `<div><strong>${escapeHtml(t.name)}</strong><div class="small">${t.group_name||'No Name'} / Recipients: ${recipientCount}</div></div><div style="display:flex;gap:6px">${t.icon ? `<img src="${t.icon}" class="img-preview" />` : ''}<button data-id="${id}" class="delTplBtn small danger">削除</button></div>`;
-        out.appendChild(div);
-    });
-    Array.from(document.getElementsByClassName('delTplBtn')).forEach(b=> b.onclick = (e)=> {
-        e.stopPropagation();
-        if(confirm('テンプレートを削除しますか？')){ delete DB.templates[b.dataset.id]; saveDB(); refreshTplUI(); }
-    });
+// --- Template Management ---
+function refreshTplUI(){ 
+    const out = $('groupList'); out.innerHTML=''; 
+    const selExec = $('exec_template_select');
+    selExec.innerHTML='<option value="">--テンプレートを選択--</option>'; 
 
-    const sel = $('exec_template_select'); sel.innerHTML='<option value="">--テンプレートを選択--</option>';
-    Object.entries(DB.templates||{}).forEach(([id, t])=>{
-        const opt = document.createElement('option'); opt.value = id; opt.textContent = t.name; sel.appendChild(opt);
-    });
+    Object.entries(DB.templates||{}).forEach(([id,t])=>{ 
+        const div = document.createElement('div'); div.className='item'; 
+        const iconHtml = t.icon ? `<img src="${t.icon}" class="img-preview" />` : `<div class="img-preview" style="background:var(--block);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;width:30px;height:30px">no</div>`;
+        div.innerHTML = `<div style="display:flex;gap:8px;align-items:center">${iconHtml}<div><strong>${escapeHtml(t.label||id)}</strong><div class="small">${escapeHtml(t.name||'')} (${(t.users||[]).length} users)</div></div></div><div style="display:flex;gap:6px"><button data-id="${id}" class="useTpl small ok">利用</button><button data-id="${id}" class="delTpl small danger">✖</button></div>`; 
+        out.appendChild(div); 
+        
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = t.label;
+        selExec.appendChild(opt);
+    }); 
+    
+    selExec.onchange = (e) => applyTemplateToExec(e.target.value);
+    
+    Array.from(document.getElementsByClassName('useTpl')).forEach(b=> b.onclick = ()=> applyTemplateToExec(b.dataset.id) ); 
+    Array.from(document.getElementsByClassName('delTpl')).forEach(b=> b.onclick = ()=> { 
+        if(confirm('削除しますか？')){ delete DB.templates[b.dataset.id]; saveDB(); refreshTplUI(); } 
+    }); 
 }
 
-$('saveTemplate').onclick = ()=>{
-    const name = prompt('テンプレート名を入力してください:');
-    if (!name) return;
-    const id = 'tpl_'+Date.now();
-    DB.templates[id] = {
-        name: name.trim(),
-        recipients: $('exec_recipients').value.trim(),
-        group_name: $('exec_name').value.trim(),
-        count: $('exec_count').value,
-        icon: DB.icon
-    };
-    saveDB();
-    appendLog(`Template saved: ${name}`);
-}
+$('saveTemplate').onclick = ()=>{ 
+    const label = prompt('テンプレートのラベルを入力してください:');
+    if (!label) return;
+    const name = $('exec_name').value.trim(); 
+    const users = $('exec_recipients').value.split(',').map(s=>s.trim()).filter(Boolean); 
+    const count = parseInt($('exec_count').value)||1; 
+    
+    if(users.length < 2){ alert('Recipients は2人以上必要です'); return; } 
+    
+    const id = 'tpl_'+Date.now(); 
+    DB.templates = DB.templates || {}; 
+    DB.templates[id] = {label:label, name:name, users:users, count:count, icon: DB.icon || null}; 
+    saveDB(); refreshTplUI(); 
+    appendLog(`Template saved: ${label}`);
+    switchSideTab('tabSideTemplates');
+};
 
-$('exec_template_select').onchange = (e) => {
-    loadTemplate(e.target.value);
-}
+function applyTemplateToExec(id){ 
+    const t = DB.templates[id]; 
+    if(!t) {
+        $('exec_recipients').value = '';
+        $('exec_name').value = ''; 
+        $('exec_count').value = '1';
+        return;
+    }
+    $('exec_recipients').value = (t.users||[]).join(','); 
+    $('exec_name').value = t.name||''; 
+    $('exec_count').value = t.count||1; 
+    $('exec_template_select').value = id;
 
-function loadTemplate(id) {
-    const tpl = DB.templates[id];
-    if (!tpl) {
-        $('exec_recipients').value = '';
-        $('exec_name').value = '';
-        $('exec_count').value = 1;
-        return;
-    }
-    $('exec_recipients').value = tpl.recipients || '';
-    $('exec_name').value = tpl.group_name || '';
-    $('exec_count').value = tpl.count || 1;
-    if (tpl.icon) {
-        DB.icon = tpl.icon;
-        $('iconPreview').src = tpl.icon;
-    } else {
-        DB.icon = null;
-        $('iconPreview').src = '';
-    }
-    saveDB();
-    appendLog(`Template loaded: ${tpl.name}`);
+    if(t.icon){ 
+        DB.icon = t.icon; saveDB(); 
+        $('iconPreview').src = DB.icon; 
+    } 
+    switchTabs('tabExec'); 
+    appendLog(`Template loaded: ${t.label}`);
 }
-
 
 // --- Sequence Management ---
-function refreshSeqList(){
-    const out = $('seqList'); out.innerHTML='';
-    Object.entries(DB.sequences||{}).forEach(([id, s])=>{
-        const div = document.createElement('div'); div.className='item'; div.dataset.id = id;
-        div.onclick = () => loadSequence(id);
-        const blockCount = s.sequence ? s.sequence.length : 0;
-        div.innerHTML = `<div><strong>${escapeHtml(s.name)}</strong><div class="small">Blocks: ${blockCount}</div></div><div style="display:flex;gap:6px"><button data-id="${id}" class="delSeqBtn small danger">削除</button></div>`;
-        out.appendChild(div);
-    });
-    Array.from(document.getElementsByClassName('delSeqBtn')).forEach(b=> b.onclick = (e)=> {
-        e.stopPropagation();
-        if(confirm('Sequenceを削除しますか？')){ delete DB.sequences[b.dataset.id]; saveDB(); refreshSeqList(); }
-    });
+function refreshSeqList(){ 
+    const out = $('seqList'); out.innerHTML=''; 
+    Object.entries(DB.sequences||{}).forEach(([id,s])=>{ 
+        const div = document.createElement('div'); div.className='item'; 
+        div.innerHTML = `<div><strong>${escapeHtml(s.name||id)}</strong><div class="small">${(s.blocks||[]).length} blocks</div></div><div style="display:flex;gap:6px"><button data-id="${id}" class="useSeq small ok">ロード</button><button data-id="${id}" class="runSeqNow small">実行</button><button data-id="${id}" class="delSeq small danger">✖</button></div>`; 
+        out.appendChild(div); 
+    }); 
+    Array.from(document.getElementsByClassName('useSeq')).forEach(b=> b.onclick = ()=> { loadSequenceIntoWorkspace(b.dataset.id); switchTabs('tabScratch'); } ); 
+    Array.from(document.getElementsByClassName('runSeqNow')).forEach(b=> b.onclick = ()=> { loadSequenceIntoWorkspace(b.dataset.id); switchTabs('tabScratch'); setTimeout(()=> $('runSeq').click(), 120); } ); 
+    Array.from(document.getElementsByClassName('delSeq')).forEach(b=> b.onclick = ()=> { if(confirm('削除しますか？')){ delete DB.sequences[b.dataset.id]; saveDB(); refreshSeqList(); } }); 
 }
+$('saveSeq').onclick = ()=>{ 
+    const name = $('seqName').value.trim(); 
+    if(!name){ alert('Sequence name を入力してください'); return; } 
+    const data = workspaceToSequence(); 
+    if(data.length === 0){ alert('ブロックがありません'); return; } 
+    
+    // ループ整合性チェック
+    const loopStarts = data.filter(b => b.type === 'loop_start').length;
+    const loopEnds = data.filter(b => b.type === 'loop_end').length;
+    if (loopStarts !== loopEnds) {
+        alert('ループブロックの開始と終了の数が一致していません。Loop Start: ' + loopStarts + ', Loop End: ' + loopEnds);
+        return;
+    }
+    // TODO: ループネストの整合性チェック
 
-$('saveSeq').onclick = () => {
-    const name = $('seqName').value.trim();
-    if (!name) { alert('Sequence名を入力してください'); return; }
-    const sequence = getSequenceFromWorkspace();
-    if (sequence.length === 0) { alert('ワークスペースにブロックがありません'); return; }
-   
-    const id = 'seq_'+Date.now();
-    DB.sequences[id] = { name: name, sequence: sequence };
-    saveDB();
-    appendLog(`Sequence saved: ${name}`);
-}
+    const id = 'seq_'+Date.now(); DB.sequences = DB.sequences || {}; 
+    DB.sequences[id] = {name:name, blocks:data}; saveDB(); refreshSeqList(); 
+    $('seqName').value=''; 
+    appendLog(`Sequence saved: ${name}`);
+    switchSideTab('tabSideSequences'); 
+};
+const workspace = $('workspace');
+let blockCounter = 0;
+let selectedBlockEl = null;
 
-function loadSequence(id) {
-    const seq = DB.sequences[id];
-    if (!seq || !seq.sequence) return;
-   
-    clearWorkspace();
-    $('seqName').value = seq.name;
-    seq.sequence.forEach(block => {
-        createWorkspaceBlock(block.type, block.props, block.id);
-    });
-    refreshSeqPreview();
-    appendLog(`Sequence loaded: ${seq.name}`);
+function defaultBlockForType(type){ 
+    if(type==='api') return {type:'api', props:{method:'POST', path:'/channels/{{channel_id}}/messages', body:{content:"hello"}, headers:{}, extract:null}}; 
+    if(type==='wait') return {type:'wait', props:{sec:1}}; 
+    if(type==='loop_start') return {type:'loop_start', props:{count:2}}; 
+    if(type==='loop_end') return {type:'loop_end', props:{}}; 
+    if(type==='cond') return {type:'cond', props:{variable:'status', value:200}}; 
+    if(type==='comment') return {type:'comment', props:{text:'Note'}}; 
+    return {type:type, props:{}}; 
 }
+function summaryForBlock(obj){ 
+    if(!obj) return ''; 
+    if(obj.type==='api') return `${obj.props.method||'GET'} ${obj.props.path||'...'}${obj.props.extract && obj.props.extract.var ? ` (Save: ${obj.props.extract.var})` : ''}`; 
+    if(obj.type==='wait') return `Wait ${obj.props.sec||1}s`; 
+    if(obj.type==='loop_start') return `Loop START: ${obj.props.count||1} times`; 
+    if(obj.type==='loop_end') return `Loop END`; 
+    if(obj.type==='cond'){ 
+        const val = obj.props.value !== undefined ? obj.props.value : 200;
+        return `IF {{${obj.props.variable}}} == ${val}`; 
+    } 
+    if(obj.type==='comment') return obj.props.text||''; 
+    return ''; 
+}
+function makeWBlock(obj){ 
+    const id = 'b_'+(++blockCounter); obj._id = id; 
+    const el = document.createElement('div'); el.className='wblock'; el.draggable = true; el.dataset.id = id; el.dataset.type = obj.type;
+    el.innerHTML = `<div><div class="meta">${escapeHtml(obj.type.toUpperCase())}</div><div class="summary">${escapeHtml(summaryForBlock(obj))}</div></div><div class="btns" style="display:flex; gap:5px;"><button class="small ghost editBtn" title="設定">⚙️</button><button class="small ghost upBtn" title="上へ">▲</button><button class="small ghost downBtn" title="下へ">▼</button><button class="small danger delBtn" title="削除">✖</button></div>`; 
+    el._data = obj; 
+    el.addEventListener('dragstart', (e)=>{ el.classList.add('dragging'); e.dataTransfer.setData('text/plain', 'workspace:'+id); }); 
+    el.addEventListener('dragend', ()=>{ el.classList.remove('dragging'); }); 
+    el.addEventListener('click', (e)=> { e.stopPropagation(); selectBlock(el); } ); 
+    
+    const editBtn = el.querySelector('.editBtn');
+    if (obj.type === 'loop_end') {
+        editBtn.style.display = 'none'; // loop_endは設定なし
+    }
+    editBtn.onclick = (ev)=>{ ev.stopPropagation(); selectBlock(el); openBlockConfig(el); }; 
+    
+    el.querySelector('.delBtn').onclick = (ev)=>{ ev.stopPropagation(); if(confirm('削除しますか？')){ el.remove(); refreshSeqPreview(); selectedBlockEl = null; $('blockConfigWrap').style.display = 'none'; } }; 
+    el.querySelector('.upBtn').onclick = (ev)=>{ ev.stopPropagation(); const p = el.previousElementSibling; if(p) el.parentNode.insertBefore(el, p); refreshSeqPreview(); }; 
+    el.querySelector('.downBtn').onclick = (ev)=>{ ev.stopPropagation(); const n = el.nextElementSibling; if(n && n.classList.contains('wblock')) el.parentNode.insertBefore(n, el); refreshSeqPreview(); }; 
+    
+    return el; 
+}
+Array.from(document.getElementsByClassName('block')).forEach((b, idx)=>{ 
+    const t = b.dataset.type;
+    b.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', 'palette:'+t); b.classList.add('dragging'); }); 
+    b.addEventListener('dragend', ()=> b.classList.remove('dragging')); 
+    b.addEventListener('dblclick', ()=> { 
+        const el = makeWBlock(defaultBlockForType(t)); 
+        workspace.appendChild(el); 
+        refreshSeqPreview(); 
+        selectBlock(el); 
+        if (t !== 'loop_end') openBlockConfig(el); 
+    }); 
+});
+workspace.addEventListener('drop', (e)=>{ 
+    e.preventDefault(); const d = e.dataTransfer.getData('text/plain'); 
+    const afterElement = getDragAfterElement(workspace, e.clientY); 
+    if(!d) return; 
+    if(d.startsWith('palette:')){ 
+        const type = d.split(':')[1]; 
+        const obj = defaultBlockForType(type); 
+        const w = makeWBlock(obj); 
+        if(afterElement) workspace.insertBefore(w, afterElement); else workspace.appendChild(w); 
+        selectBlock(w); 
+        if (type !== 'loop_end') openBlockConfig(w); 
+        refreshSeqPreview(); 
+    } else if(d.startsWith('workspace:')){ 
+        const id = d.split(':')[1]; 
+        const draggedElement = document.querySelector(`.wblock[data-id="${id}"]`); 
+        if(draggedElement){ 
+            if(afterElement) workspace.insertBefore(draggedElement, afterElement); else workspace.appendChild(draggedElement); 
+            selectBlock(draggedElement);
+        } refreshSeqPreview(); 
+    } 
+});
+workspace.addEventListener('dragover', e=> e.preventDefault());
+function getDragAfterElement(container, y){ 
+    const draggableElements = [...container.querySelectorAll('.wblock:not(.dragging)')]; 
+    return draggableElements.reduce((closest, child)=>{ 
+        const rect = child.getBoundingClientRect(); 
+        const offset = y - rect.top - child.offsetHeight/2; 
+        if(offset < 0 && offset > closest.offset){ 
+            return {offset:offset, element:child}; 
+        }else{ 
+            return closest; 
+        } 
+    }, {offset: -Infinity}).element; 
+}
+function selectBlock(el){ 
+    if (selectedBlockEl) selectedBlockEl.classList.remove('selected');
+    selectedBlockEl = el;
+    el.classList.add('selected');
+    openBlockConfig(el); 
+}
+function openBlockConfig(el){ 
+    switchTabs('tabScratch'); 
+    switchSideTab('tabSideConfig'); 
+
+    const cfg = $('blockConfig'); 
+    $('blockConfigWrap').style.display = 'block'; 
+    cfg.innerHTML = ''; 
+    const obj = el._data; 
+
+    // Configuration UI generation
+    if(obj.type==='api'){ 
+        cfg.innerHTML = `<label>Method</label><input id="cfg_method" type="text" value="${escapeHtml(obj.props.method||'POST')}" /><label>Path ({{var}} を利用可)</label><input id="cfg_path" type="text" value="${escapeHtml(obj.props.path||'/users/@me')}" /><label>Body (JSON, {{var}} 可)</label><textarea id="cfg_body" style="min-height:60px">${obj.props.body?escapeHtml(JSON.stringify(obj.props.body,null,2)):''}</textarea><div class="title" style="margin-top:10px">Extract Value</div><label>Save to variable</label><input id="cfg_extract_var" type="text" value="${escapeHtml(obj.props.extract?.var||'')}" placeholder="例: channel_id" /><label>JSONPath</label><input id="cfg_extract_path" type="text" value="${escapeHtml(obj.props.extract?.path||'')}" placeholder="例: id または [0].token" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; 
+    } else if(obj.type==='wait'){ 
+        cfg.innerHTML = `<label>Seconds</label><input id="cfg_sec" type="number" value="${escapeHtml(String(obj.props.sec||1))}" min="0.1" step="0.1" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; 
+    } else if(obj.type==='loop_start'){
+        cfg.innerHTML = `<label>Count</label><input id="cfg_count" type="number" value="${escapeHtml(String(obj.props.count||2))}" min="1" /><div class="muted">このブロックから対応する Loop End ブロックまでを指定回数繰り返します。</div><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`;
+    } else if(obj.type==='loop_end'){
+        cfg.innerHTML = `<div class="title" style="margin-top:0;">Loop End</div><div class="muted">このブロックに設定項目はありません。Sequence Builderで対応する Loop Start ブロックとセットで利用してください。</div>`;
+        $('cfgSave').style.display = 'none';
+        return;
+    } else if(obj.type==='cond'){
+        cfg.innerHTML = `<label>Target Variable</label><input id="cfg_var" type="text" value="${escapeHtml(obj.props.variable||'status')}" placeholder="status または 変数名" /><label>Required Value</label><input id="cfg_value" type="text" value="${escapeHtml(String(obj.props.value !== undefined ? obj.props.value : 200))}" placeholder="200 または 'token_string'" /><div class="muted">条件が満たされない場合、次のブロックに進みます。</div><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`;
+    } else if(obj.type==='comment'){
+        cfg.innerHTML = `<label>Comment Text</label><input id="cfg_text" type="text" value="${escapeHtml(obj.props.text||'Note')}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`;
+    }
+    
+    // Save button logic
+    $('cfgSave').onclick = () => {
+        const data = el._data.props;
+        
+        if (el._data.type === 'api') {
+            data.method = $('cfg_method').value.toUpperCase();
+            data.path = $('cfg_path').value;
+            try {
+                const bodyVal = $('cfg_body').value.trim();
+                data.body = bodyVal ? JSON.parse(bodyVal) : null;
+            } catch(e) {
+                alert('Body JSONが不正です: ' + e.message);
+                return;
+            }
+            const exVar = $('cfg_extract_var').value.trim();
+            const exPath = $('cfg_extract_path').value.trim();
+            if (exVar && exPath) {
+                data.extract = { var: exVar, path: exPath };
+            } else {
+                data.extract = null;
+            }
+        } else if (el._data.type === 'wait') {
+            data.sec = Number($('cfg_sec').value) || 1;
+        } else if (el._data.type === 'loop_start') {
+            data.count = Number($('cfg_count').value) || 2;
+        } else if (el._data.type === 'cond') {
+            data.variable = $('cfg_var').value;
+            data.value = $('cfg_value').value; 
+            if (data.variable === 'status' && !isNaN(Number(data.value))) {
+                 data.value = Number(data.value);
+            }
+        } else if (el._data.type === 'comment') {
+            data.text = $('cfg_text').value;
+        }
+
+        // ブロックのサマリーを更新
+        el.querySelector('.summary').textContent = summaryForBlock(el._data);
+        refreshSeqPreview();
+        appendLog(`Block ${el._data.type} updated.`);
+        $('cfgSave').style.display = 'inline-block';
+    };
+}
+function workspaceToSequence(){ 
+    const arr = []; 
+    Array.from(workspace.children).forEach(c=>{ 
+        if(c.classList.contains('wblock')) arr.push(c._data); 
+    }); 
+    return arr; 
+}
+function loadSequenceIntoWorkspace(id){
+    const s = DB.sequences[id];
+    if(!s || !s.blocks) return;
+    $('workspace').innerHTML = ''; 
+    $('seqName').value = s.name;
+    s.blocks.forEach(b=>{
+        const w = makeWBlock(b);
+        workspace.appendChild(w);
+    });
+    refreshSeqPreview();
+    appendLog(`Sequence loaded: ${s.name}`);
+}
+$('clearWorkspace').onclick = ()=>{ 
+    if(confirm('ワークスペースをクリアしますか？')) {
+        workspace.innerHTML = '<div class="muted" style="text-align:center; padding-top:50px">ここにブロックをドラッグ＆ドロップしてください</div>';
+        $('seqName').value = '';
+        selectedBlockEl = null;
+        $('blockConfigWrap').style.display = 'none';
+        $('seqPreview').textContent = '[]';
+        appendLog('Workspace cleared.');
+    }
+};
+function refreshSeqPreview(){ $('seqPreview').textContent = JSON.stringify(workspaceToSequence(),null,2); }
+
 
 // --- Tab Management ---
-function showMainView(viewId) {
-    ['viewExec', 'viewScratch'].forEach(id => {
-        $(id).style.display = id === viewId ? 'block' : 'none';
-    });
-    ['tabExec', 'tabScratch'].forEach(id => {
-        $(id).classList.toggle('active', id === 'tab' + viewId.replace('view', ''));
-    });
-    if (viewId === 'viewScratch') {
-        refreshSeqPreview();
-    }
+function switchTabs(activeTabId){
+    const tabs = ['tabExec', 'tabScratch'];
+    const views = ['viewExec', 'viewScratch'];
+    tabs.forEach(id => $(id).classList.remove('active'));
+    views.forEach(id => $(id).style.display = 'none');
+
+    const viewId = activeTabId === 'tabExec' ? 'viewExec' : 'viewScratch';
+    $(activeTabId).classList.add('active');
+    $(viewId).style.display = 'block';
 }
-$('tabExec').onclick = () => showMainView('viewExec');
-$('tabScratch').onclick = () => showMainView('viewScratch');
+function switchSideTab(activeTabId){
+    const tabs = ['tabSideTemplates', 'tabSideSequences', 'tabSideConfig'];
+    const views = ['sideTemplates', 'sideSequences', 'sideConfig'];
+    tabs.forEach(id => $(id).classList.remove('active'));
+    views.forEach(id => $(id).style.display = 'none');
 
-function showSideContent(contentId) {
-    ['sideTemplates', 'sideSequences', 'sideConfig'].forEach(id => {
-        $(id).style.display = id === contentId ? 'block' : 'none';
-    });
-    ['tabSideTemplates', 'tabSideSequences', 'tabSideConfig'].forEach(id => {
-        $(id).classList.toggle('active', id.replace('tabSide', 'side') === contentId);
-    });
-    if (contentId === 'sideConfig') {
-        refreshContextView();
-        refreshSeqPreview();
-    }
+    const viewId = activeTabId.replace('tabSide', 'side');
+    $(activeTabId).classList.add('active');
+    $(viewId).style.display = 'flex'; // sideConfigはflex
 }
-$('tabSideTemplates').onclick = () => showSideContent('sideTemplates');
-$('tabSideSequences').onclick = () => showSideContent('sideSequences');
-$('tabSideConfig').onclick = () => showSideContent('sideConfig');
-
-// --- Workspace / Block Logic ---
-function generateId(){ return 'block_' + Date.now() + Math.floor(Math.random() * 1000); }
-
-function summaryForBlock(block){
-    const props = block.props || {};
-    switch(block.type){
-        case 'api':
-            return `${props.method||'GET'} ${props.path||'(no path)'} -> Save: ${props.extract ? props.extract.var : 'None'}`;
-        case 'wait':
-            return `Wait for ${props.sec||1} seconds`;
-        case 'loop_start':
-            return `LOOP Start (x${props.count||1})`;
-        case 'loop_end':
-            return `LOOP End`;
-        case 'cond':
-            return `IF ${props.variable||'status'} == ${props.value||200}`;
-        case 'comment':
-            return `Comment: ${props.text||'(empty)'}`;
-        default: return `Unknown Block (${block.type})`;
-    }
-}
-
-function updateBlockUI(blockEl, props, type){
-    blockEl.querySelector('.meta').textContent = type.toUpperCase();
-    blockEl.querySelector('.summary').textContent = summaryForBlock({type, props});
-}
-
-function createWorkspaceBlock(type, initialProps={}, id=generateId()){
-    const blockEl = document.createElement('div');
-    blockEl.className = 'wblock';
-    blockEl.dataset.id = id;
-    blockEl.dataset.type = type;
-    blockEl.draggable = true;
-    blockEl.props = initialProps;
-
-    blockEl.innerHTML = `
-        <div class="content">
-            <div class="meta"></div>
-            <div class="summary"></div>
-        </div>
-        <div class="btns">
-            <button class="editBtn small">⚙️</button>
-            <button class="delBtn small danger">❌</button>
-        </div>
-    `;
-    updateBlockUI(blockEl, initialProps, type);
-
-    blockEl.querySelector('.delBtn').onclick = (e) => { e.stopPropagation(); blockEl.remove(); refreshSeqPreview(); };
-    blockEl.querySelector('.editBtn').onclick = (e) => { e.stopPropagation(); selectBlock(blockEl); };
-    blockEl.onclick = () => selectBlock(blockEl);
-
-    $('workspace').appendChild(blockEl);
-    refreshSeqPreview();
-    return blockEl;
-}
-
-function getSequenceFromWorkspace(){
-    return Array.from($('workspace').querySelectorAll('.wblock')).map(el => ({
-        id: el.dataset.id,
-        type: el.dataset.type,
-        props: el.props
-    }));
-}
-
-function refreshSeqPreview(){
-    const seq = getSequenceFromWorkspace();
-    $('seqPreview').textContent = JSON.stringify(seq, null, 2);
-}
-
-function clearWorkspace(){
-    $('workspace').innerHTML = '<div class="muted" style="text-align:center; padding-top:50px">ここにブロックをドラッグ＆ドロップしてください</div>';
-    $('seqName').value = '';
-    $('blockConfigWrap').style.display = 'none';
-    Array.from($('workspace').querySelectorAll('.wblock')).forEach(el => el.classList.remove('selected'));
-    refreshSeqPreview();
-}
-$('clearWorkspace').onclick = clearWorkspace;
-
-// --- Drag & Drop Handlers ---
-Array.from(document.querySelectorAll('.palette .block')).forEach(el => {
-    el.addEventListener('dragstart', (e) => {
-        e.dataTransfer.setData('text/plain', el.dataset.type);
-        e.dataTransfer.effectAllowed = 'copy';
-    });
-});
-
-$('workspace').addEventListener('drop', (e) => {
-    e.preventDefault();
-    const type = e.dataTransfer.getData('text/plain');
-    if (type) {
-        if ($('workspace').querySelector('.muted')) {
-            $('workspace').innerHTML = '';
-        }
-        createWorkspaceBlock(type);
-        refreshSeqPreview();
-    }
-});
-
-// --- Block Config Logic ---
-let selectedBlock = null;
-
-function selectBlock(blockEl){
-    if (selectedBlock) selectedBlock.classList.remove('selected');
-    selectedBlock = blockEl;
-    selectedBlock.classList.add('selected');
-    showSideContent('sideConfig');
-    renderBlockConfig(selectedBlock);
-}
-
-function renderBlockConfig(blockEl){
-    $('blockConfigWrap').style.display = 'block';
-    const cfg = $('blockConfig');
-    cfg.innerHTML = '';
-    const props = blockEl.props || {};
-
-    switch(blockEl.dataset.type){
-        case 'api':
-            cfg.innerHTML = `
-                <label>Method</label>
-                <select id="cfg_method"><option>GET</option><option>POST</option><option>PATCH</option><option>DELETE</option></select>
-                <label>Path (e.g., /users/{{user_id}}/messages)</label>
-                <input id="cfg_path" type="text" placeholder="/channels/123/messages" />
-                <label>Body (JSON string or object)</label>
-                <textarea id="cfg_body"></textarea>
-                <div class="title" style="margin-top:15px">Extraction</div>
-                <label>Context Variable Name</label>
-                <input id="cfg_extract_var" type="text" placeholder="e.g., last_id" />
-                <label>JSON Path (e.g., id or [0].channel_id)</label>
-                <input id="cfg_extract_path" type="text" placeholder="e.g., id" />
-                <button id="cfg_save" class="ok" style="margin-top:15px; width:100%">Save API Config</button>
-            `;
-            $('cfg_method').value = props.method || 'GET';
-            $('cfg_path').value = props.path || '';
-            $('cfg_body').value = props.body ? JSON.stringify(props.body, null, 2) : '';
-            $('cfg_extract_var').value = props.extract ? props.extract.var || '' : '';
-            $('cfg_extract_path').value = props.extract ? props.extract.path || '' : '';
-            $('cfg_save').onclick = () => {
-                let body = null;
-                try {
-                    const bodyStr = $('cfg_body').value.trim();
-                    if (bodyStr) body = JSON.parse(bodyStr);
-                } catch (e) {
-                    alert('Body JSONが不正です。');
-                    return;
-                }
-               
-                blockEl.props = {
-                    method: $('cfg_method').value,
-                    path: $('cfg_path').value.trim(),
-                    body: body,
-                    extract: {
-                        var: $('cfg_extract_var').value.trim(),
-                        path: $('cfg_extract_path').value.trim()
-                    }
-                };
-                updateBlockUI(blockEl, blockEl.props, blockEl.dataset.type);
-                refreshSeqPreview();
-            };
-            break;
-        case 'wait':
-            cfg.innerHTML = `
-                <label>Delay (seconds)</label>
-                <input id="cfg_sec" type="number" min="0.1" step="0.1" />
-                <button id="cfg_save" class="ok" style="margin-top:15px; width:100%">Save Wait Config</button>
-            `;
-            $('cfg_sec').value = props.sec || 1;
-            $('cfg_save').onclick = () => {
-                blockEl.props = { sec: $('cfg_sec').value };
-                updateBlockUI(blockEl, blockEl.props, blockEl.dataset.type);
-                refreshSeqPreview();
-            };
-            break;
-        case 'loop_start':
-            cfg.innerHTML = `
-                <label>Loop Count</label>
-                <input id="cfg_count" type="number" min="1" step="1" />
-                <button id="cfg_save" class="ok" style="margin-top:15px; width:100%">Save Loop Config</button>
-            `;
-            $('cfg_count').value = props.count || 1;
-            $('cfg_save').onclick = () => {
-                blockEl.props = { count: $('cfg_count').value };
-                updateBlockUI(blockEl, blockEl.props, blockEl.dataset.type);
-                refreshSeqPreview();
-            };
-            break;
-        case 'cond':
-            cfg.innerHTML = `
-                <label>Target Variable (e.g., status, last_id)</label>
-                <input id="cfg_variable" type="text" placeholder="status" />
-                <label>Required Value</label>
-                <input id="cfg_value" type="text" placeholder="200" />
-                <button id="cfg_save" class="ok" style="margin-top:15px; width:100%">Save Condition</button>
-            `;
-            $('cfg_variable').value = props.variable || 'status';
-            $('cfg_value').value = props.value !== undefined ? props.value : 200;
-            $('cfg_save').onclick = () => {
-                blockEl.props = {
-                    variable: $('cfg_variable').value.trim(),
-                    value: $('cfg_value').value.trim()
-                };
-                updateBlockUI(blockEl, blockEl.props, blockEl.dataset.type);
-                refreshSeqPreview();
-            };
-            break;
-        case 'comment':
-            cfg.innerHTML = `
-                <label>Comment Text</label>
-                <textarea id="cfg_text"></textarea>
-                <button id="cfg_save" class="ok" style="margin-top:15px; width:100%">Save Comment</button>
-            `;
-            $('cfg_text').value = props.text || '';
-            $('cfg_save').onclick = () => {
-                blockEl.props = { text: $('cfg_text').value.trim() };
-                updateBlockUI(blockEl, blockEl.props, blockEl.dataset.type);
-                refreshSeqPreview();
-            };
-            break;
-        case 'loop_end':
-            cfg.innerHTML = '<div class="muted">Loop Endブロックには設定はありません。</div>';
-            break;
-    }
-}
+$('tabExec').onclick = () => switchTabs('tabExec');
+$('tabScratch').onclick = () => switchTabs('tabScratch');
+$('tabSideTemplates').onclick = () => switchSideTab('tabSideTemplates');
+$('tabSideSequences').onclick = () => switchSideTab('tabSideSequences');
+$('tabSideConfig').onclick = () => switchSideTab('tabSideConfig');
 
 
-// --- Execute View Logic ---
-$('btnExec').onclick = async () => {
-    if (!window.confirm('この設定で実行しますか？')) return;
-    $('execLog').textContent = '—';
-   
-    const tokenEl = $('selectToken');
-    const tokenID = tokenEl.value;
-    if (!tokenID || !DB.tokens[tokenID]) { appendLog('[ERROR] トークンが選択されていません。'); return; }
-   
-    if (!$('consentExec').checked) { appendLog('[ERROR] 実行リスクへの同意が必要です。'); return; }
+// --- Group Creation (簡易実行) のロジック ---
+$('btnExec').onclick = async ()=>{ 
+    if(!$('consentExec').checked){ alert('実行前に同意してください'); return; } 
+    const sel = $('selectToken').value; 
+    if(!sel){ alert('Token を選択してください'); return; } 
+    const token = DB.tokens[sel].token; 
+    const rec = $('exec_recipients').value.split(',').map(s=>s.trim()).filter(Boolean); 
+    if(rec.length < 2){ alert('Recipients は2人以上必要です'); return; } 
+    const name = $('exec_name').value.trim(); 
+    const count = Number($('exec_count').value) || 1; 
 
-    const token = DB.tokens[tokenID].token;
-    const count = Number($('exec_count').value) || 1;
-    const recipients = $('exec_recipients').value.trim().split(',').map(r => r.trim()).filter(r => r);
-    const name = $('exec_name').value.trim();
-    const icon = DB.icon;
-   
-    if (recipients.length === 0) { appendLog('[ERROR] Recipientsが指定されていません。'); return; }
-    if (recipients.length < 2) { appendLog('[ERROR] Group Creationには2人以上のRecipientsが必要です。'); return; }
+    runStopFlag = false; 
+    $('execLog').textContent = '';
+    appendLog('開始: Create Group x'+count); 
+    
+    $('btnStop').style.display='inline-block'; // 簡易実行でも停止ボタンを表示
+    
+    for(let i=0;i<count;i++){ 
+        if(runStopFlag) break; 
+        try{ 
+            // 1. グループチャット作成
+            const res = await fetchWithRetry('https://discord.com/api/v9/users/@me/channels', { 
+                method:'POST', headers:{'Content-Type':'application/json'}, 
+                body: JSON.stringify({recipients:rec}) 
+            }, token); 
 
-    appendLog(`--- Group Creation Started (x${count}) ---`);
-   
-    for (let i = 0; i < count; i++) {
-        if (runStopFlag) { appendLog('ユーザーリクエストにより実行を停止しました。'); break; }
-        appendLog(`[Attempt ${i + 1}/${count}] Creating group...`);
-       
-        const payload = {
-            recipient_ids: recipients,
-            name: name || undefined,
-            icon: icon || undefined
-        };
+            const jtxt = await res.text().catch(()=>null); 
+            logLineExec(`[Create ${i+1}] ${res.status} ${jtxt? (jtxt.length>400? jtxt.slice(0,400)+'...': jtxt):''}`); 
+            
+            if(res.ok && (name || DB.icon)){ 
+                let j = null; try{ j = JSON.parse(jtxt); }catch(e){} 
+                if(j && j.id){ 
+                    const cid = j.id; 
+                    const patchBody = {};
+                    if(name) patchBody.name = name + (count>1 ? `_${i+1}` : ''); 
+                    if(DB.icon) patchBody.icon = DB.icon; 
+                    
+                    // 2. グループチャット名/アイコンのPATCH
+                    const pres = await fetchWithRetry('https://discord.com/api/v9/channels/'+cid, { 
+                        method:'PATCH', headers:{'Content-Type':'application/json'}, 
+                        body: JSON.stringify(patchBody) 
+                    }, token);
 
-        try {
-            const res = await fetchWithRetry('https://discord.com/api/v9/users/@me/channels', {
-                method: 'POST',
-                body: JSON.stringify(payload)
-            }, token);
-           
-            const jtxt = await res.text().catch(() => 'no body');
-            const logDetails = jtxt.length > 100 ? jtxt.slice(0, 100) + '...' : jtxt;
+                    const ptxt = await pres.text().catch(()=>null); 
+                    logLineExec(`[PATCH ${cid}] ${pres.status} ${ptxt?ptxt.slice(0,400):''}`); 
+                } else logLineExec('channel id が返らず name/icon を PATCH できませんでした'); 
+            } 
+        }catch(e){ logLineExec('ERROR create: '+e.message); } 
+        // 連続実行の間に短い待ち時間を入れる（レートリミット対策）
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+    
+    runStopFlag = false; 
+    $('btnStop').style.display='none';
+    appendLog('完了'); 
+};
 
-            if (res.ok) {
-                appendLog(`[SUCCESS ${i + 1}] Status: ${res.status}. Response: ${logDetails}`);
-                await new Promise(resolve => setTimeout(resolve, 500));
-            } else {
-                appendLog(`[FAILURE ${i + 1}] Status: ${res.status}. Error: ${logDetails}`);
-                await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-        } catch (e) {
-            appendLog(`[CRITICAL ERROR ${i + 1}] ${e.message}`);
-            break;
-        }
-    }
-    appendLog('--- Group Creation Finished ---');
-}
+// --- Sequence Builder (高度な実行) のロジック ---
+$('runSeq').onclick = async ()=>{ 
+    const sel = $('selectToken').value; 
+    if(!sel){ alert('Token を選択してください'); return; } 
+    if(!confirm('Sequence を実行しますか？（自己責任）')) return; 
+    const token = DB.tokens[sel].token; 
+    window._scratch_context = {}; 
+    runStopFlag = false; 
+    $('btnStop').style.display='inline-block'; 
+    $('scratchLog').textContent = ''; 
+    refreshContextView();
+    try{ 
+        const seq = workspaceToSequence(); 
+        await runSequence(seq, token); 
+    }catch(e){ 
+        appendLog('実行中断: '+(e && e.message ? e.message : String(e))); 
+    } 
+    $('btnStop').style.display='none'; 
+    runStopFlag=false; 
+    appendLog('Sequence 実行終了'); 
+    refreshContextView(); 
+};
+$('btnStop').onclick = ()=>{ runStopFlag = true; $('btnStop').style.display='none'; appendLog('停止リクエストを受け付けました'); };
 
 
-// --- Sequence Run Logic ---
-$('runSeq').onclick = async () => {
-    if (!window.confirm('Sequenceを実行しますか？')) return;
-    $('scratchLog').textContent = '—';
-    window._scratch_context = {};
-    refreshContextView();
-
-    const tokenEl = $('selectToken');
-    const tokenID = tokenEl.value;
-    if (!tokenID || !DB.tokens[tokenID]) { appendLog('[ERROR] トークンが選択されていません。'); return; }
-    const token = DB.tokens[tokenID].token;
-
-    const sequence = getSequenceFromWorkspace();
-    if (sequence.length === 0) { appendLog('[ERROR] 実行するブロックがありません。'); return; }
-
-    runStopFlag = false;
-    $('btnStop').style.display = 'inline-block';
-    $('runSeq').disabled = true;
-
-    try {
-        appendLog('--- Sequence Execution Started ---');
-        await runSequence(sequence, token);
-    } catch (e) {
-        appendLog(`[CRITICAL ABORT] 実行中に予期せぬエラーが発生しました: ${e.message}`);
-    } finally {
-        runStopFlag = false;
-        $('btnStop').style.display = 'none';
-        $('runSeq').disabled = false;
-        appendLog('--- Sequence Execution Ended ---');
-    }
-}
-
-$('btnStop').onclick = () => {
-    runStopFlag = true;
-}
-
-// --- Init ---
-document.addEventListener('DOMContentLoaded', () => {
-    refreshTokenUI();
-    refreshTplUI();
-    refreshSeqList();
-    showMainView('viewExec');
-    $('scratchLog').textContent = '—';
-    $('execLog').textContent = '—';
+// --- Initial Load ---
+document.addEventListener('DOMContentLoaded', ()=>{
+    refreshTokenUI();
+    refreshTplUI();
+    refreshSeqList();
+    refreshSeqPreview(); // 初回ロード時もプレビューを初期化
 });
 
 </script>
