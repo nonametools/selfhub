@@ -215,7 +215,8 @@
         <div style="width:320px">
           <div class="title">Selected Block</div>
           <div id="blockConfig" class="block-config">選択したブロックのプロパティを編集できます</div>
-
+			<div class="title" style="margin-top:12px">Current Variables (Context)</div>
+			<pre id="contextView" style="max-height:100px;">{}</pre>
           <div class="title" style="margin-top:12px">rawAPI Log</div>
           <pre id="scratchLog">—</pre>
         </div>
@@ -250,15 +251,15 @@ function refreshSeqList(){ const out = $('seqList'); out.innerHTML=''; Object.en
 $('saveSeq').onclick = ()=>{ const name = $('seqName').value.trim(); if(!name){ alert('Sequence name を入力してください'); return; } const data = workspaceToSequence(); if(data.length === 0){ alert('ブロックがありません'); return; } const id = 'seq_'+Date.now(); DB.sequences = DB.sequences || {}; DB.sequences[id] = {name:name, blocks:data}; saveDB(); refreshSeqList(); $('seqName').value=''; alert('保存しました'); };
 const workspace = $('workspace');
 let blockCounter = 0;
-function defaultBlockForType(type){ if(type==='api') return {type:'api', props:{method:'GET', path:'/users/@me', body:null, headers:{}}}; if(type==='wait') return {type:'wait', props:{sec:1}}; if(type==='loop') return {type:'loop', props:{count:2, blocks:[]}}; if(type==='cond') return {type:'cond', props:{code:200, blocks:[]}}; if(type==='comment') return {type:'comment', props:{text:'note'}}; return {type:type, props:{}}; }
-function summaryForBlock(obj){ if(!obj) return ''; if(obj.type==='api') return `${obj.props.method||'GET'} ${obj.props.path||'/users/@me'}`; if(obj.type==='wait') return `wait ${obj.props.sec||1}s`; if(obj.type==='loop') return `loop ${obj.props.count||1}x`; if(obj.type==='cond') return `if status == ${obj.props.code||200}`; if(obj.type==='comment') return obj.props.text||''; return ''; }
+function defaultBlockForType(type){ if(type==='api') return {type:'api', props:{method:'GET', path:'/users/@me', body:null, headers:{}, extract:null}}; if(type==='wait') return {type:'wait', props:{sec:1}}; if(type==='loop') return {type:'loop', props:{count:2, blocks:[]}}; if(type==='cond') return {type:'cond', props:{code:200, blocks:[], variable:null, value:null}}; if(type==='comment') return {type:'comment', props:{text:'note'}}; return {type:type, props:{}}; }
+function summaryForBlock(obj){ if(!obj) return ''; if(obj.type==='api') return `${obj.props.method||'GET'} ${obj.props.path||'/users/@me'}${obj.props.extract ? ` (extract: ${obj.props.extract.var})` : ''}`; if(obj.type==='wait') return `wait ${obj.props.sec||1}s`; if(obj.type==='loop') return `loop ${obj.props.count||1}x`; if(obj.type==='cond') return `if ${obj.props.variable ? `{{${obj.props.variable}}}` : 'status'} == ${obj.props.code||200}`; if(obj.type==='comment') return obj.props.text||''; return ''; }
 function makeWBlock(obj){ const id = 'b_'+(++blockCounter); obj._id = id; const el = document.createElement('div'); el.className='wblock'; el.draggable = true; el.dataset.id = id; el.innerHTML = `<div><div class="meta">${escapeHtml(obj.type.toUpperCase())}${obj.type==='api'? ' - '+escapeHtml(obj.props.method||'GET')+' '+escapeHtml(obj.props.path||'/users/@me'):''}</div><div class="small">${escapeHtml(summaryForBlock(obj))}</div></div><div class="btns"><button class="small ghost editBtn">✎</button><button class="small ghost upBtn">▲</button><button class="small ghost downBtn">▼</button><button class="small danger delBtn">✖</button></div>`; el._data = obj; el.addEventListener('dragstart', (e)=>{ el.classList.add('dragging'); e.dataTransfer.setData('text/plain', 'workspace:'+id); }); el.addEventListener('dragend', ()=>{ el.classList.remove('dragging'); }); el.addEventListener('click', (e)=> { e.stopPropagation(); selectBlock(el); } ); el.querySelector('.editBtn').onclick = (ev)=>{ ev.stopPropagation(); openBlockConfig(el); }; el.querySelector('.delBtn').onclick = (ev)=>{ ev.stopPropagation(); if(confirm('削除しますか？')){ el.remove(); refreshSeqPreview(); } }; el.querySelector('.upBtn').onclick = (ev)=>{ ev.stopPropagation(); const p = el.previousElementSibling; if(p) el.parentNode.insertBefore(el, p); refreshSeqPreview(); }; el.querySelector('.downBtn').onclick = (ev)=>{ ev.stopPropagation(); const n = el.nextElementSibling; if(n) el.parentNode.insertBefore(n, el); refreshSeqPreview(); }; return el; }
 Array.from(document.getElementsByClassName('block')).forEach((b, idx)=>{ const t = b.dataset.type || ['api','wait','loop','cond','comment'][idx]; b.dataset.type = t; b.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', 'palette:'+t); b.classList.add('dragging'); }); b.addEventListener('dragend', ()=> b.classList.remove('dragging')); b.addEventListener('dblclick', ()=> { const el = makeWBlock(defaultBlockForType(t)); workspace.appendChild(el); refreshSeqPreview(); openBlockConfig(el); }); });
 workspace.addEventListener('drop', (e)=>{ e.preventDefault(); const d = e.dataTransfer.getData('text/plain'); const afterElement = getDragAfterElement(workspace, e.clientX, e.clientY); if(!d) return; if(d.startsWith('palette:')){ const type = d.split(':')[1]; const obj = defaultBlockForType(type); const w = makeWBlock(obj); if(afterElement) workspace.insertBefore(w, afterElement); else workspace.appendChild(w); openBlockConfig(w); refreshSeqPreview(); } else if(d.startsWith('workspace:')){ const id = d.split(':')[1]; const draggedElement = document.querySelector(`.wblock[data-id="${id}"]`); if(draggedElement){ if(afterElement) workspace.insertBefore(draggedElement, afterElement); else workspace.appendChild(draggedElement); } refreshSeqPreview(); } });
 workspace.addEventListener('dragover', e=> e.preventDefault());
 function getDragAfterElement(container, x, y){ const draggableElements = [...container.querySelectorAll('.wblock:not(.dragging)')]; return draggableElements.reduce((closest, child)=>{ const rect = child.getBoundingClientRect(); const offset = container.classList.contains('horizontal') ? x - rect.left - rect.width/2 : y - rect.top - rect.height/2; if(offset < 0 && offset > closest.offset){ return {offset:offset, element:child}; }else{ return closest; } }, {offset: -Infinity}).element; }
 function selectBlock(el){ Array.from(workspace.children).forEach(c=> c.style.boxShadow='none'); el.style.boxShadow = '0 0 0 2px var(--accent)'; openBlockConfig(el); }
-function openBlockConfig(el){ const cfg = $('blockConfig'); cfg.style.display = 'block'; cfg.innerHTML = ''; const obj = el._data; if(obj.type==='api'){ cfg.innerHTML = `<label>Method</label><input id="cfg_method" type="text" value="${escapeHtml(obj.props.method||'GET')}" /><label>Path</label><input id="cfg_path" type="text" value="${escapeHtml(obj.props.path||'/users/@me')}" /><label>Body (JSON)</label><textarea id="cfg_body">${obj.props.body?escapeHtml(JSON.stringify(obj.props.body,null,2)):''}</textarea><label>Headers (JSON)</label><textarea id="cfg_headers">${obj.props.headers?escapeHtml(JSON.stringify(obj.props.headers,null,2)):''}</textarea><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='wait'){ cfg.innerHTML = `<label>Seconds</label><input id="cfg_sec" type="text" value="${escapeHtml(String(obj.props.sec||1))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='loop'){ cfg.innerHTML = `<label>Count</label><input id="cfg_count" type="text" value="${escapeHtml(String(obj.props.count||1))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='cond'){ cfg.innerHTML = `<label>Status code</label><input id="cfg_code" type="text" value="${escapeHtml(String(obj.props.code||200))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='comment'){ cfg.innerHTML = `<label>Text</label><textarea id="cfg_text">${escapeHtml(obj.props.text||'')}</textarea><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } $('cfgSave').onclick = ()=>{ try{ if(obj.type==='api'){ const btxt = $('cfg_body').value.trim(); obj.props.body = btxt? JSON.parse(btxt) : null; const htxt = $('cfg_headers').value.trim(); obj.props.headers = htxt? JSON.parse(htxt) : {}; obj.props.method = $('cfg_method').value.trim().toUpperCase()||'GET'; obj.props.path = $('cfg_path').value.trim()||'/users/@me'; } else if(obj.type==='wait'){ obj.props.sec = Number($('cfg_sec').value)||1; } else if(obj.type==='loop'){ obj.props.count = Number($('cfg_count').value)||1; } else if(obj.type==='cond'){ obj.props.code = Number($('cfg_code').value)||200; } else if(obj.type==='comment'){ obj.props.text = $('cfg_text').value||''; } }catch(e){ alert('JSON parse error'); return; } el.querySelector('.meta').textContent = obj.type.toUpperCase() + (obj.type==='api'? ' - '+obj.props.method+' '+obj.props.path : ''); el.querySelector('.small').textContent = summaryForBlock(obj); refreshSeqPreview(); cfg.style.display = 'none'; }; }
+function openBlockConfig(el){ const cfg = $('blockConfig'); cfg.style.display = 'block'; cfg.innerHTML = ''; const obj = el._data; if(obj.type==='api'){ cfg.innerHTML = `<label>Method (GET/POST/..)</label><input id="cfg_method" type="text" value="${escapeHtml(obj.props.method||'GET')}" /><label>Path ({{var}} を利用可)</label><input id="cfg_path" type="text" value="${escapeHtml(obj.props.path||'/users/@me')}" /><label>Body (JSON, {{var}} を利用可)</label><textarea id="cfg_body">${obj.props.body?escapeHtml(JSON.stringify(obj.props.body,null,2)):''}</textarea><label>Headers (JSON)</label><textarea id="cfg_headers">${obj.props.headers?escapeHtml(JSON.stringify(obj.props.headers,null,2)):''}</textarea><div class="title" style="margin-top:10px">Extract Value</div><label>Save to variable (例: channel_id)</label><input id="cfg_extract_var" type="text" value="${escapeHtml(obj.props.extract?.var||'')}" placeholder="変数名" /><label>JSONPath (例: .id, .messages[0].id)</label><input id="cfg_extract_path" type="text" value="${escapeHtml(obj.props.extract?.path||'')}" placeholder=".id" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='wait'){ cfg.innerHTML = `<label>Seconds</label><input id="cfg_sec" type="text" value="${escapeHtml(String(obj.props.sec||1))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='loop'){ cfg.innerHTML = `<label>Count</label><input id="cfg_count" type="text" value="${escapeHtml(String(obj.props.count||1))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='cond'){ cfg.innerHTML = `<label>Condition Target</label><select id="cfg_target"><option value="status" ${obj.props.variable==='status'?'selected':''}>Status Code (直前のAPI)</option><option value="variable" ${obj.props.variable!=='status'?'selected':''}>Variable ({{var}})</option></select><div id="cfg_var_wrap" style="display:${obj.props.variable!=='status'?'block':'none'}"><label>Variable Name ({{var}})</label><input id="cfg_variable" type="text" value="${escapeHtml(obj.props.variable||'')}" /></div><label>Operator: == </label><label>Value</label><input id="cfg_value" type="text" value="${escapeHtml(String(obj.props.value!==undefined ? obj.props.value : (obj.props.code || 200)))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; $('cfg_target').onchange = (e)=>{ if(e.target.value === 'variable') $('cfg_var_wrap').style.display = 'block'; else $('cfg_var_wrap').style.display = 'none'; }; } else if(obj.type==='comment'){ cfg.innerHTML = `<label>Text</label><textarea id="cfg_text">${escapeHtml(obj.props.text||'')}</textarea><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } $('cfgSave').onclick = ()=>{ try{ if(obj.type==='api'){ const btxt = $('cfg_body').value.trim(); obj.props.body = btxt? JSON.parse(btxt) : null; const htxt = $('cfg_headers').value.trim(); obj.props.headers = htxt? JSON.parse(htxt) : {}; obj.props.method = $('cfg_method').value.trim().toUpperCase()||'GET'; obj.props.path = $('cfg_path').value.trim()||'/users/@me'; const ext_var = $('cfg_extract_var').value.trim(); const ext_path = $('cfg_extract_path').value.trim(); if(ext_var && ext_path) obj.props.extract = {var:ext_var, path:ext_path}; else obj.props.extract = null; } else if(obj.type==='wait'){ obj.props.sec = Number($('cfg_sec').value)||1; } else if(obj.type==='loop'){ obj.props.count = Number($('cfg_count').value)||1; } else if(obj.type==='cond'){ const target = $('cfg_target').value; obj.props.variable = target === 'status' ? 'status' : $('cfg_variable').value.trim(); if(target === 'status') obj.props.code = Number($('cfg_value').value) || 200; else { obj.props.code = undefined; obj.props.value = $('cfg_value').value; } } else if(obj.type==='comment'){ obj.props.text = $('cfg_text').value||''; } }catch(e){ alert('JSON parse error'); return; } el.querySelector('.meta').textContent = obj.type.toUpperCase() + (obj.type==='api'? ' - '+obj.props.method+' '+obj.props.path : ''); el.querySelector('.small').textContent = summaryForBlock(obj); refreshSeqPreview(); cfg.style.display = 'none'; }; }
 function workspaceToSequence(){ return Array.from(workspace.children).map(c=> c._data ? JSON.parse(JSON.stringify(c._data)) : null).filter(Boolean); }
 function loadSequenceObjectToWorkspace(blocks){ workspace.innerHTML=''; blockCounter=0; if(!Array.isArray(blocks)) return; for(const b of blocks){ const el = makeWBlock(b); workspace.appendChild(el); } refreshSeqPreview(); }
 function loadSequenceIntoWorkspace(id){ const s = DB.sequences[id]; if(!s){ alert('sequence not found'); return; } loadSequenceObjectToWorkspace(s.blocks||[]); }
@@ -268,11 +269,155 @@ let runStopFlag = false;
 $('btnStop').onclick = ()=>{ runStopFlag = true; $('btnStop').style.display='none'; appendLog('停止リクエストを受け取りました'); };
 function sleepMs(ms){ return new Promise(r=>setTimeout(r, ms)); }
 async function fetchWithRetry(url, opts){ while(true){ if(runStopFlag) throw new Error('Stopped by user'); const res = await fetch(url, opts); if(res.status !== 429) return res; let retry = 1; try{ const j = await res.json().catch(()=>null); retry = j && j.retry_after ? j.retry_after : (parseFloat(res.headers.get('Retry-After')) || 1); }catch(e){} appendLog(`429 レート制限: ${retry}s 待機`); let left = Math.ceil(retry); while(left>0){ if(runStopFlag) throw new Error('Stopped by user'); await sleepMs(1000); left--; } } }
-async function runSequence(arr,token){window._scratch_last_status=0;for(let i=0;i<arr.length;i++){if(runStopFlag){appendLog('実行中止');return;}const b=arr[i];appendLog(`-> [${i+1}/${arr.length}] ${b.type} ${summaryForBlock(b)}`);if(b.type==='comment'){if(b.props&&b.props.text)appendLog(`COMMENT: ${b.props.text}`);continue;}if(b.type==='wait'){const t=Number(b.props&&b.props.sec)||1;appendLog(`WAIT ${t}s`);await sleepMs(t*1000);continue;}if(b.type==='loop'){const cnt=Number(b.props&&b.props.count)||1;const next=arr[i+1];if(!next){appendLog('LOOP: no next block');continue;}appendLog(`LOOP x${cnt} -> ${summaryForBlock(next)}`);for(let k=0;k<cnt;k++){if(runStopFlag)return;await runSequence([next],token);}i++;continue;}if(b.type==='cond'){const code=Number(b.props&&b.props.code)||200;const last=window._scratch_last_status||0;appendLog(`COND check lastStatus=${last} == ${code}`);if(last===code&&Array.isArray(b.props.blocks))await runSequence(b.props.blocks,token);else appendLog('COND skipped');continue;}if(b.type==='api'){const method=(b.props.method||'GET').toUpperCase();const path=b.props.path||'/users/@me';const body=b.props.body!==undefined?b.props.body:null;const headers=Object.assign({},b.props.headers||{});const opts={method,headers:Object.assign({'Authorization':token,'Content-Type':'application/json'},headers)};if(body!==null&&['POST','PATCH','PUT','DELETE'].includes(method))opts.body=JSON.stringify(body);const url='https://discord.com/api/v9'+path;appendLog(`API ${method} ${path}`);try{const res=await fetchWithRetry(url,opts);const txt=await res.text().catch(()=>null);window._scratch_last_status=res.status;appendLog(`[API res] ${res.status} ${txt?(txt.length>400?txt.slice(0,400)+'...':txt):''}`);}catch(e){appendLog('API ERROR: '+e.message);}continue;}appendLog('Unknown block type: '+b.type);}}
+
+window._scratch_context = {};
+function refreshContextView() { $('contextView').textContent = JSON.stringify(window._scratch_context, null, 2); }
+
+function injectVariables(s, context) {
+    if (!s) return s;
+    return String(s).replace(/\{\{(\w+)\}\}/g, (match, p1) => context[p1] !== undefined ? context[p1] : match);
+}
+function extractValue(json, path) {
+    if (!json || !path) return undefined;
+    try {
+        if (path.startsWith('.')) path = path.slice(1);
+        const parts = path.split('.');
+        let current = json;
+        for (const part of parts) {
+            const arrayMatch = part.match(/(\w+)\[(\d+)\]/);
+            if (arrayMatch) {
+                const key = arrayMatch[1];
+                const index = parseInt(arrayMatch[2]);
+                current = current[key];
+                if (!Array.isArray(current) || index >= current.length) return undefined;
+                current = current[index];
+            } else {
+                current = current[part];
+            }
+            if (current === undefined || current === null) return undefined;
+        }
+        return current;
+    } catch (e) {
+        return undefined;
+    }
+}
+function compareValues(a, b, isNumeric) {
+    if (isNumeric) return Number(a) === Number(b);
+    return String(a) === String(b);
+}
+
+async function runSequence(arr,token){
+    for(let i=0;i<arr.length;i++){
+        if(runStopFlag){appendLog('実行中止');return;}
+        const b=arr[i];
+        appendLog(`-> [${i+1}/${arr.length}] ${b.type} ${summaryForBlock(b)}`);
+        
+        if(b.type==='comment'){
+            if(b.props&&b.props.text)appendLog(`COMMENT: ${b.props.text}`);
+            continue;
+        }
+        
+        if(b.type==='wait'){
+            const t=Number(b.props&&b.props.sec)||1;
+            appendLog(`WAIT ${t}s`);
+            await sleepMs(t*1000);
+            continue;
+        }
+        
+        if(b.type==='loop'){
+            const cnt=Number(b.props&&b.props.count)||1;
+            const next=arr[i+1];
+            if(!next){appendLog('LOOP: no next block');continue;}
+            appendLog(`LOOP x${cnt} -> ${summaryForBlock(next)}`);
+            for(let k=0;k<cnt;k++){
+                if(runStopFlag)return;
+                await runSequence([next],token);
+            }
+            i++;
+            continue;
+        }
+        
+        if(b.type==='cond'){
+            const targetVar = b.props.variable || 'status';
+            const valueToCompare = b.props.value !== undefined ? b.props.value : b.props.code;
+            let actualValue;
+            let conditionMet = false;
+
+            if (targetVar === 'status') {
+                actualValue = window._scratch_last_status || 0;
+                conditionMet = compareValues(actualValue, valueToCompare, true);
+                appendLog(`COND check status=${actualValue} == ${valueToCompare}`);
+            } else {
+                actualValue = window._scratch_context[targetVar];
+                // 数値比較を試みるが、値が文字列であれば文字列比較を行う
+                const isNumeric = !isNaN(Number(actualValue)) && !isNaN(Number(valueToCompare));
+                conditionMet = compareValues(actualValue, valueToCompare, isNumeric);
+                appendLog(`COND check {{${targetVar}}}(${actualValue}) == ${valueToCompare}`);
+            }
+
+            if(conditionMet && Array.isArray(b.props.blocks)) {
+                await runSequence(b.props.blocks,token);
+            } else {
+                appendLog('COND skipped');
+            }
+            continue;
+        }
+        
+        if(b.type==='api'){
+            let method=(b.props.method||'GET').toUpperCase();
+            let path=injectVariables(b.props.path||'/users/@me', window._scratch_context);
+            let body=b.props.body!==undefined?b.props.body:null;
+            let headers=Object.assign({},b.props.headers||{});
+            
+            if (body && typeof body === 'object') {
+                // Body内の変数を展開（再帰的に処理するのがベストだが、ここではシンプルに文字列化して展開）
+                let bodyStr = JSON.stringify(body);
+                bodyStr = injectVariables(bodyStr, window._scratch_context);
+                try { body = JSON.parse(bodyStr); } catch(e) { appendLog('API ERROR: Body variable injection failed'); body = null; }
+            }
+
+            const opts={method,headers:Object.assign({'Authorization':token,'Content-Type':'application/json'},headers)};
+            if(body!==null&&['POST','PATCH','PUT','DELETE'].includes(method))opts.body=JSON.stringify(body);
+            
+            const url='https://discord.com/api/v9'+path;
+            appendLog(`API ${method} ${path}`);
+            
+            let resJson = null;
+
+            try{
+                const res=await fetchWithRetry(url,opts);
+                const txt=await res.text().catch(()=>null);
+                window._scratch_last_status=res.status;
+                appendLog(`[API res] ${res.status} ${txt?(txt.length>400?txt.slice(0,400)+'...':txt):''}`);
+                
+                if (res.ok && txt) {
+                    try { resJson = JSON.parse(txt); } catch(e) { resJson = null; }
+                }
+
+            }catch(e){
+                appendLog('API ERROR: '+e.message);
+            }
+            
+            if (b.props.extract && resJson) {
+                const extracted = extractValue(resJson, b.props.extract.path);
+                if (extracted !== undefined) {
+                    window._scratch_context[b.props.extract.var] = extracted;
+                    appendLog(`EXTRACTED: ${b.props.extract.var} = ${extracted}`);
+                } else {
+                    appendLog(`EXTRACT FAIL: Path ${b.props.extract.path} not found`);
+                }
+            }
+            refreshContextView();
+
+            continue;
+        }
+        appendLog('Unknown block type: '+b.type);
+    }
+}
 $('btnExec').onclick = async ()=>{ if(!$('consentExec').checked){ alert('実行前に同意してください'); return; } const sel = $('selectToken').value; if(!sel){ alert('Token を選択してください'); return; } const token = DB.tokens[sel].token; const rec = $('exec_recipients').value.split(',').map(s=>s.trim()).filter(Boolean); if(rec.length < 2){ alert('Recipients は2人以上必要です'); return; } const name = $('exec_name').value.trim(); const count = Number($('exec_count').value) || 1; runStopFlag = false; $('btnStop').style.display='inline-block'; appendLog('開始: Create Group x'+count); for(let i=0;i<count;i++){ if(runStopFlag) break; try{ const res = await fetchWithRetry('https://discord.com/api/v9/users/@me/channels', { method:'POST', headers:{'Authorization':token,'Content-Type':'application/json'}, body: JSON.stringify({recipients:rec}) }); const jtxt = await res.text().catch(()=>null); appendLog(`[Create ${i+1}] ${res.status} ${jtxt? (jtxt.length>400? jtxt.slice(0,400)+'...': jtxt):''}`); window._scratch_last_status = res.status; if(res.ok && name){ let j = null; try{ j = JSON.parse(jtxt); }catch(e){} if(j && j.id){ const cid = j.id; const patchBody = {name: name + (count>1 ? `_${i+1}` : '')}; if(DB.icon) patchBody.icon = DB.icon; const pres = await fetchWithRetry('https://discord.com/api/v9/channels/'+cid, { method:'PATCH', headers:{'Authorization':token,'Content-Type':'application/json'}, body: JSON.stringify(patchBody) }); const ptxt = await pres.text().catch(()=>null); appendLog(`[PATCH ${cid}] ${pres.status} ${ptxt?ptxt.slice(0,400):''}`); window._scratch_last_status = pres.status; } else appendLog('channel id が返らず name を PATCH できませんでした'); } }catch(e){ appendLog('ERROR create: '+e.message); } } $('btnStop').style.display='none'; runStopFlag = false; appendLog('完了'); };
-$('runSeq').onclick = async ()=>{ const sel = $('selectToken').value; if(!sel){ alert('Token を選択してください'); return; } if(!confirm('Sequence を実行しますか？（自己責任）')) return; const token = DB.tokens[sel].token; runStopFlag = false; $('btnStop').style.display='inline-block'; try{ const seq = workspaceToSequence(); await runSequence(seq, token); }catch(e){ appendLog('実行中断: '+(e && e.message ? e.message : String(e))); } $('btnStop').style.display='none'; runStopFlag=false; appendLog('Sequence 実行終了'); };
+$('runSeq').onclick = async ()=>{ const sel = $('selectToken').value; if(!sel){ alert('Token を選択してください'); return; } if(!confirm('Sequence を実行しますか？（自己責任）')) return; const token = DB.tokens[sel].token; window._scratch_context = {}; runStopFlag = false; $('btnStop').style.display='inline-block'; $('scratchLog').textContent = ''; try{ const seq = workspaceToSequence(); await runSequence(seq, token); }catch(e){ appendLog('実行中断: '+(e && e.message ? e.message : String(e))); } $('btnStop').style.display='none'; runStopFlag=false; appendLog('Sequence 実行終了'); refreshContextView(); };
 $('tabExec').onclick = ()=>{ $('viewExec').style.display='block'; $('viewScratch').style.display='none'; $('tabExec').classList.add('ok'); $('tabExec').classList.remove('ghost'); $('tabScratch').classList.remove('ok'); $('tabScratch').classList.add('ghost'); $('palette').style.display = 'none'; workspace.style.display='none'; workspace.classList.remove('horizontal'); updateLayoutNotice(); };
-$('tabScratch').onclick = ()=>{ $('viewExec').style.display='none'; $('viewScratch').style.display='block'; $('tabExec').classList.remove('ok'); $('tabExec').classList.add('ghost'); $('tabScratch').classList.add('ok'); $('tabScratch').classList.remove('ghost'); $('palette').style.display = 'grid'; workspace.style.display='flex'; workspace.classList.remove('horizontal'); updateLayoutNotice(); if($('scratchLog').textContent === '—') $('scratchLog').textContent = ''; };
+$('tabScratch').onclick = ()=>{ $('viewExec').style.display='none'; $('viewScratch').style.display='block'; $('tabExec').classList.remove('ok'); $('tabExec').classList.add('ghost'); $('tabScratch').classList.add('ok'); $('tabScratch').classList.remove('ghost'); $('palette').style.display = 'grid'; workspace.style.display='flex'; workspace.classList.remove('horizontal'); updateLayoutNotice(); if($('scratchLog').textContent === '—') $('scratchLog').textContent = ''; refreshContextView(); };
 $('openScratch').onclick = ()=>{ $('tabScratch').click(); };
 $('toggleLayout').onclick = ()=>{ workspace.classList.toggle('horizontal'); updateLayoutNotice(); };
 function updateLayoutNotice(){ const notice = $('layoutNotice'); if(workspace.classList.contains('horizontal')) notice.textContent = '現在：横表示'; else notice.textContent = '現在：縦表示'; }
@@ -282,7 +427,7 @@ $('exportAll').onclick = ()=>{ const text = JSON.stringify({exported:Date.now(),
 $('importAll').onclick = ()=>{ const f = document.createElement('input'); f.type='file'; f.accept='application/json'; f.onchange = ()=> { const file = f.files[0]; if(!file) return; const r = new FileReader(); r.onload = ()=> { try{ const j = JSON.parse(r.result); if(j.db){ DB = j.db; saveDB(); alert('全設定の読み込みが完了しました'); } else alert('不正なファイル'); }catch(e){ alert('読み込みエラー'); } }; r.readAsText(file); }; f.click(); };
 $('btnGen').onclick = ()=>{ const sel = $('selectToken').value; if(!sel){ alert('Token を選択してください'); return; } const token = DB.tokens[sel].token; const rec = $('exec_recipients').value.split(',').map(s=>s.trim()).filter(Boolean); if(rec.length < 2){ alert('Recipients は2人以上必要です'); return; } const jsonBody = JSON.stringify({recipients:rec}, null, 2); const curl = `curl -X POST "https://discord.com/api/v9/users/@me/channels" \\\n-H "Authorization: ${token}" \\\n-H "Content-Type: application/json" \\\n-d '${jsonBody.replace(/'/g, "\\'")}'`; const fetchCode = `fetch('https://discord.com/api/v9/users/@me/channels', {\n  method: 'POST',\n  headers: {\n    'Authorization': '${token}',\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({recipients: ${JSON.stringify(rec)}})\n})`; $('execLog').textContent = `[curl]\n${curl}\n\n[fetch]\n${fetchCode}`; };
 function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function loadInitial(){ if(DB.icon){ $('iconPreview').src = DB.icon; $('iconInfo').textContent = 'Icon loaded'; } else { $('iconPreview').src = ''; $('iconInfo').textContent = 'No icon'; } refreshTokenUI(); refreshTplUI(); refreshSeqList(); if($('viewScratch').style.display !== 'none'){ $('palette').style.display = 'grid'; workspace.style.display='flex'; } else { $('palette').style.display = 'none'; workspace.style.display='none'; } updateLayoutNotice(); }
+function loadInitial(){ if(DB.icon){ $('iconPreview').src = DB.icon; $('iconInfo').textContent = 'Icon loaded'; } else { $('iconPreview').src = ''; $('iconInfo').textContent = 'No icon'; } refreshTokenUI(); refreshTplUI(); refreshSeqList(); if($('viewScratch').style.display !== 'none'){ $('palette').style.display = 'grid'; workspace.style.display='flex'; } else { $('palette').style.display = 'none'; workspace.style.display='none'; } updateLayoutNotice(); refreshContextView(); }
 window.onload = loadInitial;
 </script>
 </body>
