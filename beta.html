@@ -6,20 +6,21 @@
 <title>Group Tools — API Execute (Canvas)</title>
 <style>
 /* ------------------------------------------------ */
-/* 🎨 White & Light Blue Theme */
+/* 🎨 White & Light Blue Theme v2 (Improved Contrast & Layout) */
 /* ------------------------------------------------ */
 :root {
   --bg: #f8f9fa;            /* Light Background (White) */
   --card: #ffffff;          /* Card Background (Pure White) */
   --accent: #00bfff;        /* Main Accent (Deep Sky Blue / 水色) */
+  --accent-dark: #0088cc;   /* Darker Accent for Contrast */
   --accent-light: #e0f7ff;  /* Light Accent for Hover/Block */
-  --text-primary: #212529;  /* Dark Text */
+  --text-primary: #212529;  /* Dark Text (High Contrast) */
   --text-secondary: #6c757d;/* Muted Text */
   --ok: #28a745;            /* Success (Green) */
   --err: #dc3545;           /* Error (Red) */
-  --glass: rgba(0, 0, 0, 0.03); /* Light Shadow/Border Effect */
   --block: #f1f3f5;         /* Workspace Block Background */
-  --block-contrast: #e9ecef;/* Active Block Background */
+  --block-contrast: #e9ecef;/* Active Block Background (Higher Contrast) */
+  --border: rgba(0, 0, 0, 0.15); /* Clearer Border */
 }
 html,body {
   height: 100%;
@@ -33,13 +34,13 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 16px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--border);
   background: var(--card);
 }
 h1 {
   margin: 0;
   font-size: 18px;
-  color: var(--accent); /* Title in Accent Color */
+  color: var(--accent-dark); /* Title in Darker Accent Color for contrast */
 }
 .sub {
   font-size: 12px;
@@ -47,24 +48,24 @@ h1 {
 }
 .container {
   max-width: 1200px;
-  margin: 24px auto; /* Increased margin */
+  margin: 24px auto; 
   padding: 0 16px;
   display: grid;
   grid-template-columns: 340px 1fr;
-  gap: 24px; /* Increased gap */
+  gap: 24px; 
 }
 .card {
   background: var(--card);
-  padding: 16px; /* Increased padding */
-  border-radius: 12px; /* Smoother corners */
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08); /* Lighter shadow */
+  padding: 16px; 
+  border-radius: 12px; 
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* Lighter, subtle shadow */
 }
 label {
   display: block;
   font-size: 13px;
   color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 600; /* Bolder label */
   margin-top: 12px;
 }
 input[type=text],
@@ -72,10 +73,10 @@ input[type=password],
 textarea,
 select {
   width: 100%;
-  padding: 10px; /* Increased padding */
+  padding: 10px; 
   border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  background: var(--bg); /* Light background for inputs */
+  border: 1px solid var(--border);
+  background: var(--bg); 
   color: var(--text-primary);
   box-sizing: border-box;
   transition: border-color 0.2s;
@@ -84,6 +85,7 @@ input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-light);
+  background: var(--card); /* Pure white on focus for contrast */
 }
 textarea {
   min-height: 84px;
@@ -95,17 +97,17 @@ textarea {
   align-items: center;
 }
 button {
-  padding: 10px 14px; /* Increased padding */
+  padding: 10px 14px; 
   border-radius: 8px;
   border: none;
   background: var(--accent);
   color: white;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   transition: background 0.2s, box-shadow 0.2s;
 }
 button:hover {
-  background: #0099cc; /* Darker Blue */
+  background: var(--accent-dark); 
 }
 button.ghost {
   background: transparent;
@@ -114,7 +116,7 @@ button.ghost {
 }
 button.ghost:hover {
   background: var(--accent-light);
-  color: var(--accent);
+  color: var(--accent-dark);
   border-color: var(--accent);
 }
 button.small {
@@ -141,36 +143,42 @@ button.small {
   max-height: 200px;
   overflow: auto;
   margin-top: 8px;
+  border: 1px solid var(--border); /* List Border for clarity */
+  border-radius: 8px;
 }
 .item {
   padding: 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  margin-bottom: 8px;
-  background: var(--accent-light); /* Light Blue background for list items */
+  margin: 0; /* Remove margin, use border bottom */
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08); 
+  background: var(--card); /* Pure white background */
   display: flex;
   justify-content: space-between;
   align-items: center;
+  transition: background 0.2s;
 }
 .item:hover {
-    background: #c6eefc; /* Slightly darker light blue on hover */
+    background: var(--accent-light); /* Light Blue background on hover */
+}
+.item:last-child {
+    border-bottom: none;
 }
 .item strong {
-    color: var(--accent);
+    color: var(--accent-dark); /* Stronger accent color */
 }
 .small {
   font-size: 12px;
   color: var(--text-secondary);
 }
 pre {
-  background: #f1f3f5; /* Light grey for code block */
+  background: var(--block); /* Light grey for code block */
   padding: 12px;
   border-radius: 8px;
   color: #343a40;
   overflow: auto;
   max-height: 360px;
   white-space: pre-wrap;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
+  font-size: 12px;
 }
 footer {
   padding: 16px;
@@ -190,27 +198,27 @@ footer {
   gap: 8px;
 }
 .block {
-  background: var(--block);
+  background: var(--block-contrast); /* High contrast light grey */
   padding: 12px;
   border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
   cursor: grab;
   color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 600;
   transition: background 0.2s;
 }
 .block:hover {
-    background: var(--block-contrast);
+    background: #dde2e6; /* Slightly darker light grey on hover */
 }
 .block.dragging {
   opacity: 0.6;
 }
 #workspace {
   min-height: 320px;
-  border: 2px dashed rgba(0, 0, 0, 0.15);
+  border: 2px dashed var(--border);
   padding: 12px;
   border-radius: 8px;
-  background: #f8f9fa; /* Slightly off-white for workspace */
+  background: var(--bg); 
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -221,33 +229,36 @@ footer {
   flex-wrap: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 12px;
+  align-items: flex-start; /* Blocks start at the top */
 }
 .wblock {
-  background: var(--block-contrast);
+  background: var(--card); /* White background for in-workspace blocks */
   padding: 10px;
-  border-radius: 6px;
-  margin-bottom: 8px;
+  border-radius: 8px; /* Smoother corners */
+  margin-bottom: 0; /* Vertical spacing is handled by gap on parent */
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: grab;
-  min-width: 220px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  min-width: 260px; /* Slightly wider blocks */
+  border: 1px solid var(--border);
+  transition: box-shadow 0.1s;
 }
 #workspace.horizontal .wblock {
-  display: inline-flex;
-  margin-right: 8px;
-  margin-bottom: 0;
-  min-width: 280px;
+  min-width: 300px; /* Wider for horizontal view */
+  flex-shrink: 0; /* Do not shrink */
+}
+.wblock:hover {
+    background: var(--block);
 }
 .wblock .meta {
-  font-size: 12px;
-  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-dark);
 }
 .wblock .btns {
   display: flex;
-  gap: 6px;
+  gap: 4px; /* Tighter button grouping */
 }
 .trash {
   background: var(--err);
@@ -269,16 +280,17 @@ footer {
   display: none;
   padding: 12px;
   margin-top: 10px;
-  background: var(--accent-light); /* Light blue config area */
+  background: var(--accent-light); 
   border-radius: 8px;
-  border: 1px solid var(--accent);
+  border: 2px solid var(--accent); /* Accent border for selected block config */
 }
 .badge {
   background: var(--accent-light);
   padding: 4px 8px;
   border-radius: 999px;
-  color: var(--accent);
+  color: var(--accent-dark);
   font-size: 12px;
+  font-weight: 600;
 }
 .pill {
   display: inline-block;
@@ -287,6 +299,7 @@ footer {
   background: var(--block);
   font-size: 13px;
   color: var(--text-primary);
+  font-weight: 600;
 }
 .flex-gap {
   display: flex;
@@ -298,8 +311,9 @@ footer {
 }
 .title {
   font-weight: 700;
-  color: var(--accent);
+  color: var(--accent-dark);
   margin-bottom: 8px;
+  font-size: 15px;
 }
 .help {
   font-size: 12px;
@@ -311,11 +325,13 @@ footer {
   height: 48px;
   border-radius: 8px;
   object-fit: cover;
-  border: 1px solid rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border);
 }
 .notice {
   font-size: 12px;
   color: var(--text-primary);
+  font-weight: 600;
+  margin-top: 4px;
 }
 /* Media Query for responsiveness */
 @media (max-width: 980px){ 
@@ -347,7 +363,7 @@ footer {
     <div class="muted" style="margin-top:12px">保存済トークン</div>
     <div id="tokenList" class="list"></div>
 
-    <hr style="margin:16px 0;border:none;border-top:1px solid rgba(0,0,0,0.1)">
+    <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
 
     <div class="title">Icon / Image</div>
     <div class="muted">テンプレート用のアイコン（base64として保存）</div>
@@ -363,7 +379,7 @@ footer {
       </div>
     </div>
 
-    <hr style="margin:16px 0;border:none;border-top:1px solid rgba(0,0,0,0.1)">
+    <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
 
     <div class="title">Group Templates</div>
     <label>設定 Label</label>
@@ -380,7 +396,7 @@ footer {
     </div>
     <div id="groupList" class="list" style="margin-top:8px"></div>
 
-    <hr style="margin:16px 0;border:none;border-top:1px solid rgba(0,0,0,0.1)">
+    <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
 
     <div class="title">Saved Sequences</div>
     <div class="controls">
@@ -430,7 +446,7 @@ footer {
         </div>
       </div>
 
-      <hr style="margin:16px 0;border:none;border-top:1px solid rgba(0,0,0,0.1)">
+      <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
 
       <div>
         <div class="title">Create Parameters</div>
@@ -519,13 +535,13 @@ $('saveSeq').onclick = ()=>{ const name = $('seqName').value.trim(); if(!name){ 
 const workspace = $('workspace');
 let blockCounter = 0;
 function defaultBlockForType(type){ if(type==='api') return {type:'api', props:{method:'GET', path:'/users/@me', body:null, headers:{}, extract:null}}; if(type==='wait') return {type:'wait', props:{sec:1}}; if(type==='loop') return {type:'loop', props:{count:2, blocks:[]}}; if(type==='cond') return {type:'cond', props:{code:200, blocks:[], variable:null, value:null}}; if(type==='comment') return {type:'comment', props:{text:'note'}}; return {type:type, props:{}}; }
-function summaryForBlock(obj){ if(!obj) return ''; if(obj.type==='api') return `${obj.props.method||'GET'} ${obj.props.path||'/users/@me'}${obj.props.extract ? ` (extract: ${obj.props.extract.var})` : ''}`; if(obj.type==='wait') return `wait ${obj.props.sec||1}s`; if(obj.type==='loop') return `loop ${obj.props.count||1}x`; if(obj.type==='cond') return `if ${obj.props.variable ? `{{${obj.props.variable}}}` : 'status'} == ${obj.props.code||200}`; if(obj.type==='comment') return obj.props.text||''; return ''; }
+function summaryForBlock(obj){ if(!obj) return ''; if(obj.type==='api') return `${obj.props.method||'GET'} ${obj.props.path||'/users/@me'}${obj.props.extract ? ` (extract: ${obj.props.extract.var})` : ''}`; if(obj.type==='wait') return `wait ${obj.props.sec||1}s`; if(obj.type==='loop') return `loop ${obj.props.count||1}x`; if(obj.type==='cond') return `if ${obj.props.variable ? `{{${obj.props.variable}}}` : 'status'} == ${obj.props.value!==undefined ? obj.props.value : obj.props.code||200}`; if(obj.type==='comment') return obj.props.text||''; return ''; }
 function makeWBlock(obj){ const id = 'b_'+(++blockCounter); obj._id = id; const el = document.createElement('div'); el.className='wblock'; el.draggable = true; el.dataset.id = id; el.innerHTML = `<div><div class="meta">${escapeHtml(obj.type.toUpperCase())}${obj.type==='api'? ' - '+escapeHtml(obj.props.method||'GET')+' '+escapeHtml(obj.props.path||'/users/@me'):''}</div><div class="small">${escapeHtml(summaryForBlock(obj))}</div></div><div class="btns"><button class="small ghost editBtn">✎</button><button class="small ghost upBtn">▲</button><button class="small ghost downBtn">▼</button><button class="small danger delBtn">✖</button></div>`; el._data = obj; el.addEventListener('dragstart', (e)=>{ el.classList.add('dragging'); e.dataTransfer.setData('text/plain', 'workspace:'+id); }); el.addEventListener('dragend', ()=>{ el.classList.remove('dragging'); }); el.addEventListener('click', (e)=> { e.stopPropagation(); selectBlock(el); } ); el.querySelector('.editBtn').onclick = (ev)=>{ ev.stopPropagation(); openBlockConfig(el); }; el.querySelector('.delBtn').onclick = (ev)=>{ ev.stopPropagation(); if(confirm('削除しますか？')){ el.remove(); refreshSeqPreview(); } }; el.querySelector('.upBtn').onclick = (ev)=>{ ev.stopPropagation(); const p = el.previousElementSibling; if(p) el.parentNode.insertBefore(el, p); refreshSeqPreview(); }; el.querySelector('.downBtn').onclick = (ev)=>{ ev.stopPropagation(); const n = el.nextElementSibling; if(n) el.parentNode.insertBefore(n, el); refreshSeqPreview(); }; return el; }
 Array.from(document.getElementsByClassName('block')).forEach((b, idx)=>{ const t = b.dataset.type || ['api','wait','loop','cond','comment'][idx]; b.dataset.type = t; b.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', 'palette:'+t); b.classList.add('dragging'); }); b.addEventListener('dragend', ()=> b.classList.remove('dragging')); b.addEventListener('dblclick', ()=> { const el = makeWBlock(defaultBlockForType(t)); workspace.appendChild(el); refreshSeqPreview(); openBlockConfig(el); }); });
 workspace.addEventListener('drop', (e)=>{ e.preventDefault(); const d = e.dataTransfer.getData('text/plain'); const afterElement = getDragAfterElement(workspace, e.clientX, e.clientY); if(!d) return; if(d.startsWith('palette:')){ const type = d.split(':')[1]; const obj = defaultBlockForType(type); const w = makeWBlock(obj); if(afterElement) workspace.insertBefore(w, afterElement); else workspace.appendChild(w); openBlockConfig(w); refreshSeqPreview(); } else if(d.startsWith('workspace:')){ const id = d.split(':')[1]; const draggedElement = document.querySelector(`.wblock[data-id="${id}"]`); if(draggedElement){ if(afterElement) workspace.insertBefore(draggedElement, afterElement); else workspace.appendChild(draggedElement); } refreshSeqPreview(); } });
 workspace.addEventListener('dragover', e=> e.preventDefault());
-function getDragAfterElement(container, x, y){ const draggableElements = [...container.querySelectorAll('.wblock:not(.dragging)')]; return draggableElements.reduce((closest, child)=>{ const rect = child.getBoundingClientRect(); const offset = container.classList.contains('horizontal') ? x - rect.left - rect.width/2 : y - rect.top - rect.height/2; if(offset < 0 && offset > closest.offset){ return {offset:offset, element:child}; }else{ return closest; } }, {offset: -Infinity}).element; }
-function selectBlock(el){ Array.from(workspace.children).forEach(c=> c.style.boxShadow='none'); el.style.boxShadow = '0 0 0 2px var(--accent)'; openBlockConfig(el); }
+function getDragAfterElement(container, x, y){ const draggableElements = [...container.querySelectorAll('.wblock:not(.dragging)')]; return draggableElements.reduce((closest, child)=>{ const rect = child.getBoundingClientRect(); const offset = container.classList.contains('horizontal') ? x - rect.left - child.offsetWidth/2 : y - rect.top - child.offsetHeight/2; if(offset < 0 && offset > closest.offset){ return {offset:offset, element:child}; }else{ return closest; } }, {offset: -Infinity}).element; }
+function selectBlock(el){ Array.from(workspace.children).forEach(c=> c.style.boxShadow='none'); el.style.boxShadow = '0 0 0 2px var(--accent-dark)'; openBlockConfig(el); }
 function openBlockConfig(el){ const cfg = $('blockConfig'); cfg.style.display = 'block'; cfg.innerHTML = ''; const obj = el._data; if(obj.type==='api'){ cfg.innerHTML = `<label>Method (GET/POST/..)</label><input id="cfg_method" type="text" value="${escapeHtml(obj.props.method||'GET')}" /><label>Path ({{var}} を利用可)</label><input id="cfg_path" type="text" value="${escapeHtml(obj.props.path||'/users/@me')}" /><label>Body (JSON, {{var}} を利用可)</label><textarea id="cfg_body">${obj.props.body?escapeHtml(JSON.stringify(obj.props.body,null,2)):''}</textarea><label>Headers (JSON)</label><textarea id="cfg_headers">${obj.props.headers?escapeHtml(JSON.stringify(obj.props.headers,null,2)):''}</textarea><div class="title" style="margin-top:10px">Extract Value</div><label>Save to variable (例: channel_id)</label><input id="cfg_extract_var" type="text" value="${escapeHtml(obj.props.extract?.var||'')}" placeholder="変数名" /><label>JSONPath (例: .id, .messages[0].id)</label><input id="cfg_extract_path" type="text" value="${escapeHtml(obj.props.extract?.path||'')}" placeholder=".id" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='wait'){ cfg.innerHTML = `<label>Seconds</label><input id="cfg_sec" type="text" value="${escapeHtml(String(obj.props.sec||1))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='loop'){ cfg.innerHTML = `<label>Count</label><input id="cfg_count" type="text" value="${escapeHtml(String(obj.props.count||1))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='cond'){ cfg.innerHTML = `<label>Condition Target</label><select id="cfg_target"><option value="status" ${obj.props.variable==='status'?'selected':''}>Status Code (直前のAPI)</option><option value="variable" ${obj.props.variable!=='status'?'selected':''}>Variable ({{var}})</option></select><div id="cfg_var_wrap" style="display:${obj.props.variable!=='status'?'block':'none'}"><label>Variable Name ({{var}})</label><input id="cfg_variable" type="text" value="${escapeHtml(obj.props.variable||'')}" /></div><label>Operator: == </label><label>Value</label><input id="cfg_value" type="text" value="${escapeHtml(String(obj.props.value!==undefined ? obj.props.value : (obj.props.code || 200)))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; $('cfg_target').onchange = (e)=>{ if(e.target.value === 'variable') $('cfg_var_wrap').style.display = 'block'; else $('cfg_var_wrap').style.display = 'none'; }; } else if(obj.type==='comment'){ cfg.innerHTML = `<label>Text</label><textarea id="cfg_text">${escapeHtml(obj.props.text||'')}</textarea><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } $('cfgSave').onclick = ()=>{ try{ if(obj.type==='api'){ const btxt = $('cfg_body').value.trim(); obj.props.body = btxt? JSON.parse(btxt) : null; const htxt = $('cfg_headers').value.trim(); obj.props.headers = htxt? JSON.parse(htxt) : {}; obj.props.method = $('cfg_method').value.trim().toUpperCase()||'GET'; obj.props.path = $('cfg_path').value.trim()||'/users/@me'; const ext_var = $('cfg_extract_var').value.trim(); const ext_path = $('cfg_extract_path').value.trim(); if(ext_var && ext_path) obj.props.extract = {var:ext_var, path:ext_path}; else obj.props.extract = null; } else if(obj.type==='wait'){ obj.props.sec = Number($('cfg_sec').value)||1; } else if(obj.type==='loop'){ obj.props.count = Number($('cfg_count').value)||1; } else if(obj.type==='cond'){ const target = $('cfg_target').value; obj.props.variable = target === 'status' ? 'status' : $('cfg_variable').value.trim(); if(target === 'status') obj.props.code = Number($('cfg_value').value) || 200; else { obj.props.code = undefined; obj.props.value = $('cfg_value').value; } } else if(obj.type==='comment'){ obj.props.text = $('cfg_text').value||''; } }catch(e){ alert('JSON parse error'); return; } el.querySelector('.meta').textContent = obj.type.toUpperCase() + (obj.type==='api'? ' - '+obj.props.method+' '+obj.props.path : ''); el.querySelector('.small').textContent = summaryForBlock(obj); refreshSeqPreview(); cfg.style.display = 'none'; }; }
 function workspaceToSequence(){ return Array.from(workspace.children).map(c=> c._data ? JSON.parse(JSON.stringify(c._data)) : null).filter(Boolean); }
 function loadSequenceObjectToWorkspace(blocks){ workspace.innerHTML=''; blockCounter=0; if(!Array.isArray(blocks)) return; for(const b of blocks){ const el = makeWBlock(b); workspace.appendChild(el); } refreshSeqPreview(); }
@@ -598,8 +614,11 @@ async function runSequence(arr,token){
             appendLog(`LOOP x${cnt} -> ${summaryForBlock(next)}`);
             for(let k=0;k<cnt;k++){
                 if(runStopFlag)return;
+                window._scratch_context.loop_index = k + 1; // Loop index variable
                 await runSequence([next],token);
+                refreshContextView();
             }
+            delete window._scratch_context.loop_index;
             i++;
             continue;
         }
@@ -656,7 +675,7 @@ async function runSequence(arr,token){
                 window._scratch_last_status=res.status;
                 appendLog(`[API res] ${res.status} ${txt?(txt.length>400?txt.slice(0,400)+'...':txt):''}`);
                 
-                if (res.ok && txt) {
+                if (txt && res.headers.get('content-type') && res.headers.get('content-type').includes('application/json')) {
                     try { resJson = JSON.parse(txt); } catch(e) { resJson = null; }
                 }
 
@@ -683,7 +702,7 @@ async function runSequence(arr,token){
 $('btnExec').onclick = async ()=>{ if(!$('consentExec').checked){ alert('実行前に同意してください'); return; } const sel = $('selectToken').value; if(!sel){ alert('Token を選択してください'); return; } const token = DB.tokens[sel].token; const rec = $('exec_recipients').value.split(',').map(s=>s.trim()).filter(Boolean); if(rec.length < 2){ alert('Recipients は2人以上必要です'); return; } const name = $('exec_name').value.trim(); const count = Number($('exec_count').value) || 1; runStopFlag = false; $('btnStop').style.display='inline-block'; appendLog('開始: Create Group x'+count); for(let i=0;i<count;i++){ if(runStopFlag) break; try{ const res = await fetchWithRetry('https://discord.com/api/v9/users/@me/channels', { method:'POST', headers:{'Authorization':token,'Content-Type':'application/json'}, body: JSON.stringify({recipients:rec}) }); const jtxt = await res.text().catch(()=>null); appendLog(`[Create ${i+1}] ${res.status} ${jtxt? (jtxt.length>400? jtxt.slice(0,400)+'...': jtxt):''}`); window._scratch_last_status = res.status; if(res.ok && name){ let j = null; try{ j = JSON.parse(jtxt); }catch(e){} if(j && j.id){ const cid = j.id; const patchBody = {name: name + (count>1 ? `_${i+1}` : '')}; if(DB.icon) patchBody.icon = DB.icon; const pres = await fetchWithRetry('https://discord.com/api/v9/channels/'+cid, { method:'PATCH', headers:{'Authorization':token,'Content-Type':'application/json'}, body: JSON.stringify(patchBody) }); const ptxt = await pres.text().catch(()=>null); appendLog(`[PATCH ${cid}] ${pres.status} ${ptxt?ptxt.slice(0,400):''}`); window._scratch_last_status = pres.status; } else appendLog('channel id が返らず name を PATCH できませんでした'); } }catch(e){ appendLog('ERROR create: '+e.message); } } $('btnStop').style.display='none'; runStopFlag = false; appendLog('完了'); };
 $('runSeq').onclick = async ()=>{ const sel = $('selectToken').value; if(!sel){ alert('Token を選択してください'); return; } if(!confirm('Sequence を実行しますか？（自己責任）')) return; const token = DB.tokens[sel].token; window._scratch_context = {}; runStopFlag = false; $('btnStop').style.display='inline-block'; $('scratchLog').textContent = ''; try{ const seq = workspaceToSequence(); await runSequence(seq, token); }catch(e){ appendLog('実行中断: '+(e && e.message ? e.message : String(e))); } $('btnStop').style.display='none'; runStopFlag=false; appendLog('Sequence 実行終了'); refreshContextView(); };
 $('tabExec').onclick = ()=>{ $('viewExec').style.display='block'; $('viewScratch').style.display='none'; $('tabExec').classList.add('ok'); $('tabExec').classList.remove('ghost'); $('tabScratch').classList.remove('ok'); $('tabScratch').classList.add('ghost'); $('palette').style.display = 'none'; workspace.style.display='none'; workspace.classList.remove('horizontal'); updateLayoutNotice(); };
-$('tabScratch').onclick = ()=>{ $('viewExec').style.display='none'; $('viewScratch').style.display='block'; $('tabExec').classList.remove('ok'); $('tabExec').classList.add('ghost'); $('tabScratch').classList.add('ok'); $('tabScratch').classList.remove('ghost'); $('palette').style.display = 'grid'; workspace.style.display='flex'; workspace.classList.remove('horizontal'); updateLayoutNotice(); if($('scratchLog').textContent === '—') $('scratchLog').textContent = ''; refreshContextView(); };
+$('tabScratch').onclick = ()=>{ $('viewExec').style.display='none'; $('viewScratch').style.display='block'; $('tabExec').classList.remove('ok'); $('tabExec').classList.add('ghost'); $('tabScratch').classList.add('ok'); $('tabScratch').classList.remove('ghost'); $('palette').style.display = 'grid'; workspace.style.display='flex'; updateLayoutNotice(); if($('scratchLog').textContent === '—') $('scratchLog').textContent = ''; refreshContextView(); };
 $('openScratch').onclick = ()=>{ $('tabScratch').click(); };
 $('toggleLayout').onclick = ()=>{ workspace.classList.toggle('horizontal'); updateLayoutNotice(); };
 function updateLayoutNotice(){ const notice = $('layoutNotice'); if(workspace.classList.contains('horizontal')) notice.textContent = '現在：横表示'; else notice.textContent = '現在：縦表示'; }
