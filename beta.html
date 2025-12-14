@@ -9,19 +9,19 @@
 /* ☀️ Light Theme v4 (Simplified Workflow) */
 /* ------------------------------------------------ */
 :root{
-  --bg: #f5f7fa;           /* Main Light Background */
-  --card: #ffffff;         /* Card Background (White) */
-  --accent: #1f6feb;       /* Main Accent (Deep Blue) */
-  --accent-dark: #104191;  /* Darker Accent for Contrast/Hover */
-  --accent-light: #4c8fff; /* Lighter Accent for Highlight */
-  --muted: #6c757d;        /* Muted Text (Gray) */
-  --text-primary: #212529; /* Dark Text (High Contrast) */
-  --ok: #28a745;           /* Success (Green) */
-  --err: #dc3545;          /* Error (Red) */
-  --block: #e9ecef;        /* Palette Block Background (Light Gray) */
-  --block-contrast: #dee2e6;/* Workspace Block Background */
-  --border: #dee2e6;       /* Border/Divider (Light Gray) */
-  --border-strong: #ced4da;/* Stronger Border */
+  --bg: #f5f7fa;             /* Main Light Background */
+  --card: #ffffff;           /* Card Background (White) */
+  --accent: #1f6feb;         /* Main Accent (Deep Blue) */
+  --accent-dark: #104191;    /* Darker Accent for Contrast/Hover */
+  --accent-light: #4c8fff;   /* Lighter Accent for Highlight */
+  --muted: #6c757d;          /* Muted Text (Gray) */
+  --text-primary: #212529;   /* Dark Text (High Contrast) */
+  --ok: #28a745;             /* Success (Green) */
+  --err: #dc3545;            /* Error (Red) */
+  --block: #e9ecef;          /* Palette Block Background (Light Gray) */
+  --block-contrast: #dee2e6; /* Workspace Block Background */
+  --border: #dee2e6;         /* Border/Divider (Light Gray) */
+  --border-strong: #ced4da; /* Stronger Border */
   --shadow: 0 4px 12px rgba(0,0,0,0.08); /* Light Shadow */
 }
 html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text-primary);overflow:hidden;} 
@@ -146,6 +146,23 @@ button.small{padding:6px 10px;font-size:13px}
 .info-item strong { font-size: 14px; color: var(--accent-dark); }
 .info-item .small { font-size: 12px; }
 
+/* --- 画像サイズ統一のための修正 --- */
+.img-preview { 
+    width: 30px; 
+    height: 30px; 
+    border-radius: 50%; 
+    object-fit: cover; 
+    flex-shrink: 0; 
+}
+#execForm img { 
+    margin-top: 10px; 
+    border: 1px solid var(--border-strong); 
+}
+.list-container .item .img-preview {
+    margin-top: 0; 
+}
+/* -------------------------------------- */
+
 /* Sequence Builder (rawAPI) */
 #scratchArea {
     display: grid;
@@ -181,7 +198,7 @@ button.small{padding:6px 10px;font-size:13px}
     border: 2px dashed var(--border-strong);
     padding: 12px;
     border-radius: 8px;
-    background: var(--block);
+    background: var(--block-contrast); /* ワークスペースの背景を少し濃く */
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -257,37 +274,53 @@ pre{
     gap: 20px;
 }
 #execForm > div:last-child { grid-column: 1 / -1; } /* Actions */
-#execForm img { margin-top: 10px; border: 1px solid var(--border-strong); }
+
+
+/* List Item Styles */
+.list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.list-container .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+}
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <h1>Group Tools — Easy API</h1>
-    <div class="sub">直感的で入力の少ない操作を追求</div>
-  </div>
-  <div id="headerControls">
-    <div class="row">
-        <span class="pill" style="background:var(--ok)">Token:</span>
-        <select id="selectToken"><option value="">--未選択--</option></select>
-    </div>
-    <button id="tokenManagementBtn" class="small ghost">🔑 トークン管理</button>
-  </div>
+  <div>
+    <h1>Group Tools — Easy API</h1>
+    <div class="sub">直感的で入力の少ない操作を追求</div>
+  </div>
+  <div id="headerControls">
+    <div class="row">
+        <span class="pill" style="background:var(--ok)">Token:</span>
+        <select id="selectToken"><option value="">--未選択--</option></select>
+    </div>
+    <button id="tokenManagementBtn" class="small ghost">🔑 トークン管理</button>
+  </div>
 </header>
 
 <div class="main-layout">
-      <div class="col-info">
-    <div class="card">
-      <div class="title">📋 Active API Information</div>
+      <div class="col-info">
+    <div class="card">
+      <div class="title">📋 Active API Information</div>
       <div id="infoList" class="info-list">
           <div class="info-item active"><strong>API / Task Select</strong><div class="small">Main task menu</div></div>
           <div class="info-item"><strong>Current Variables</strong><div class="small">last_id: 123...</div></div>
           <div class="info-item"><strong>Saved Templates</strong><div class="small">template_A, template_B</div></div>
       </div>
-    </div>
-  </div>
+    </div>
+  </div>
 
-      <div class="col-main card" style="padding:0; overflow:hidden;">
+      <div class="col-main card" style="padding:0; overflow:hidden;">
         <div class="main-tabs">
             <button id="tabExec" class="active">👥 Group Creation (簡易実行)</button>
             <button id="tabScratch">🛠️ Sequence Builder (高度な自動化)</button>
@@ -366,7 +399,7 @@ pre{
                 </div>
             </div>
         </div>
-  </div>
+  </div>
     
     <div class="col-side card">
         <div class="side-tabs">
@@ -429,11 +462,6 @@ pre{
 
 
 <script>
-// ... [V3のJavaScriptコードをほぼそのまま貼り付けますが、以下の点を変更・追加します] ...
-// 1. カラー定義と要素名 (col-tokens -> col-info, tabSideLogsConfig -> tabSideConfig) に合わせる
-// 2. モーダル操作を追加
-// 3. Template 保存時にexec_recipients/name/count の値をフォームから取得するように修正
-// 4. GUI操作の改善（list-containerの高さ調整、ボタン名の変更など）
 const STORAGE_KEY = 'selfhub_rawapi_v2_light';
 function loadDB(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {tokens:{}, templates:{}, sequences:{}, icon:null}; }catch(e){ return {tokens:{}, templates:{}, sequences:{}, icon:null}; }}
 function saveDB(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){} refreshTokenUI(); refreshTplUI(); refreshSeqList(); }
@@ -449,6 +477,256 @@ function appendLog(s){
 $('iconFile').addEventListener('change', (e)=>{ const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ()=>{ DB.icon = r.result; saveDB(); $('iconPreview').src = DB.icon; appendLog('Icon saved'); }; r.readAsDataURL(f); });
 $('removeIcon').onclick = ()=>{ DB.icon = null; saveDB(); $('iconPreview').src=''; };
 function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+
+// --- V3のSequence実行ロジック群を統合 ---
+function isJson(str) { try { JSON.parse(str); } catch (e) { return false; } return true; }
+
+function injectVariables(input, context) {
+    if (typeof input !== 'string') return input;
+    const regex = /\{\{(\w+)\}\}/g;
+    return input.replace(regex, (match, varName) => {
+        const value = context[varName];
+        if (value === undefined || value === null) {
+            return match; 
+        }
+        return String(value);
+    });
+}
+
+function extractValue(responseJson, path) {
+    if (!responseJson || !path) return undefined;
+    let parts = path.trim().replace(/^\./, ''); 
+    
+    if (parts.startsWith('[0]')) {
+        if (Array.isArray(responseJson) && responseJson.length > 0) {
+            responseJson = responseJson[0];
+            parts = parts.substring(3).replace(/^\./, ''); 
+        } else {
+            return undefined; 
+        }
+    } else if (parts.startsWith('[0].')) {
+         if (Array.isArray(responseJson) && responseJson.length > 0) {
+            responseJson = responseJson[0];
+            parts = parts.substring(4); 
+        } else {
+            return undefined; 
+        }
+    }
+    
+    if (!parts) return responseJson; 
+    
+    parts = parts.split('.');
+    let current = responseJson;
+
+    for (const part of parts) {
+        if (current === undefined || current === null) return undefined;
+        current = current[part];
+    }
+    return current;
+}
+
+async function fetchWithRetry(url, options, token) {
+    const maxRetries = 3;
+    const headers = options.headers || {};
+    
+    if (token) {
+        headers['Authorization'] = token;
+    }
+    headers['Content-Type'] = 'application/json';
+
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const response = await fetch(url, { ...options, headers: headers });
+            
+            if (response.status === 429) {
+                const retryAfter = Number(response.headers.get('Retry-After')) || 1;
+                appendLog(`[API WARNING] 429 Rate Limit. Retrying in ${retryAfter} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+                continue; 
+            }
+            return response; 
+        } catch (error) {
+            if (i < maxRetries - 1) {
+                appendLog(`[API ERROR] Network error. Retrying in 2 seconds... (${error.message})`);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+            } else {
+                throw new Error(`APIコール失敗 (${url}): ${error.message}`);
+            }
+        }
+    }
+    throw new Error('APIコールが最大リトライ回数を超過しました。');
+}
+
+function compareValues(a, b) {
+    let valA = a;
+    let valB = b;
+    
+    if (!isNaN(Number(valA)) && !isNaN(Number(valB))) {
+        valA = Number(valA);
+        valB = Number(valB);
+    }
+    
+    return valA === valB;
+}
+
+let runStopFlag = false;
+window._scratch_context = {}; 
+function refreshContextView() { $('contextView').textContent = JSON.stringify(window._scratch_context, null, 2); }
+
+async function runSequence(sequence, token) {
+    const loopStack = [];
+    let i = 0;
+    window._scratch_context.status = undefined; // 実行ごとにリセット
+
+    while (i < sequence.length) {
+        if (runStopFlag) {
+            appendLog('Sequence 実行をユーザーリクエストにより停止しました。');
+            return;
+        }
+
+        const block = sequence[i];
+        const props = block.props || {};
+        
+        // ログの先頭に実行中のブロックを表示
+        appendLog(`-> [${i + 1}/${sequence.length}] ${summaryForBlock(block)}`);
+
+        switch (block.type) {
+            case 'api':
+                try {
+                    const url = 'https://discord.com/api/v9' + injectVariables(props.path, window._scratch_context);
+                    const method = props.method || 'GET';
+                    
+                    let bodyJson = null;
+                    if (props.body) {
+                        const bodyStr = injectVariables(JSON.stringify(props.body), window._scratch_context);
+                        if (isJson(bodyStr)) {
+                            bodyJson = JSON.parse(bodyStr);
+                        } else {
+                            throw new Error('Body JSON 展開後が無効です: ' + bodyStr);
+                        }
+                    }
+
+                    const res = await fetchWithRetry(url, {
+                        method: method,
+                        body: bodyJson ? JSON.stringify(bodyJson) : null
+                    }, token);
+
+                    const jtxt = await res.text().catch(() => null);
+                    let j = null;
+                    let logDetails = '';
+
+                    try {
+                        j = jtxt && jtxt.trim() ? JSON.parse(jtxt) : null;
+                    } catch (e) {
+                        // JSONデコードエラーは無視（レスポンスが空の場合など）
+                    }
+                    
+                    window._scratch_context.status = res.status; // status変数としてコンテキストに保存
+                    
+                    if (j) {
+                        logDetails = jtxt.length > 100 ? JSON.stringify(j).slice(0, 100) + '...' : jtxt;
+                    } else if (jtxt) {
+                         logDetails = jtxt.length > 100 ? jtxt.slice(0, 100) + '...' : jtxt;
+                    } else {
+                        logDetails = '(No Content)';
+                    }
+                    
+                    appendLog(`[API res] ${res.status} ${logDetails}`);
+
+                    // Extract Value 処理
+                    if (props.extract && props.extract.var && props.extract.path && j) {
+                        const extracted = extractValue(j, props.extract.path);
+                        if (extracted !== undefined) {
+                            window._scratch_context[props.extract.var] = extracted;
+                            appendLog(`[EXTRACT OK] ${props.extract.var} = ${extracted}`);
+                        } else {
+                            appendLog(`[EXTRACT FAIL] Path ${props.extract.path} not found`);
+                        }
+                        refreshContextView();
+                    }
+                } catch (e) {
+                    appendLog(`[API CALL ERROR] ${e.message}`);
+                    throw e; // シーケンスを中断
+                }
+                i++;
+                break;
+
+            case 'wait':
+                const delay = (Number(props.sec) || 1) * 1000;
+                appendLog(`Waiting for ${props.sec} seconds...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+                i++;
+                break;
+
+            case 'loop':
+                const currentLoop = loopStack[loopStack.length - 1];
+                const count = Number(props.count) || 1;
+                
+                if (!currentLoop || currentLoop.start !== i) {
+                    // 新しいループを開始
+                    loopStack.push({ 
+                        start: i, 
+                        count: count, 
+                        current: 0 
+                    });
+                    i++;
+                } else {
+                    // ループの末尾に到達 (または継続)
+                    currentLoop.current++;
+                    
+                    if (currentLoop.current < count) {
+                        // 継続: ループ開始位置に戻る
+                        i = currentLoop.start + 1;
+                        appendLog(`Loop ${currentLoop.current + 1}/${count} - Restarting...`);
+                    } else {
+                        // 終了: ループをポップし、次に進む
+                        loopStack.pop();
+                        i++;
+                        appendLog('Loop Finished.');
+                    }
+                }
+                break;
+                
+            case 'cond':
+                let conditionMet = false;
+                const targetVar = props.variable || 'status';
+                const requiredValue = props.value !== undefined ? props.value : props.code; 
+                
+                let actualValue;
+                if (targetVar === 'status') {
+                    actualValue = window._scratch_context.status;
+                } else {
+                    const varKey = injectVariables(`{{${targetVar}}}`, window._scratch_context);
+                    actualValue = varKey !== `{{${targetVar}}}` ? window._scratch_context[varKey] : window._scratch_context[targetVar];
+                }
+
+                if (actualValue !== undefined && compareValues(actualValue, requiredValue)) {
+                    conditionMet = true;
+                    appendLog(`[CONDITION OK] ${targetVar} (${actualValue}) == ${requiredValue}`);
+                } else {
+                    appendLog(`[CONDITION FAIL] ${targetVar} (${actualValue}) != ${requiredValue}`);
+                }
+
+                if (conditionMet) {
+                    i++; // 条件が満たされたら次に進む
+                } else {
+                    // 条件が満たされない場合、次のブロックに進む
+                    i++; 
+                }
+                break;
+                
+            case 'comment':
+                i++;
+                break;
+
+            default:
+                appendLog(`[WARNING] Unknown block type: ${block.type}`);
+                i++;
+        }
+    }
+}
+// --- Sequence実行ロジック群 統合終了 ---
+
 
 // --- Token Management (Modal) ---
 $('tokenManagementBtn').onclick = () => $('tokenModal').style.display = 'flex';
@@ -471,6 +749,8 @@ function refreshTokenUI(){
     Array.from(document.getElementsByClassName('delBtn')).forEach(b=> b.onclick = ()=> { 
         if(confirm('削除しますか？')){ delete DB.tokens[b.dataset.id]; saveDB(); refreshTokenUI(); } 
     }); 
+    // 初回ロード時のアイコン表示
+    if (DB.icon) $('iconPreview').src = DB.icon;
 }
 $('modalSaveToken').onclick = ()=>{ 
     const lbl = $('modalTokenLabel').value.trim(); 
@@ -487,12 +767,12 @@ $('clearTokens').onclick = ()=>{ if(confirm('トークンをすべて削除し�
 function refreshTplUI(){ 
     const out = $('groupList'); out.innerHTML=''; 
     const selExec = $('exec_template_select');
-    const currentSelectedId = selExec.value;
     selExec.innerHTML='<option value="">--テンプレートを選択--</option>'; 
 
     Object.entries(DB.templates||{}).forEach(([id,t])=>{ 
         const div = document.createElement('div'); div.className='item'; 
-        div.innerHTML = `<div style="display:flex;gap:8px;align-items:center">${t.icon? `<img src="${t.icon}" class="img-preview" />` : `<div class="img-preview" style="background:var(--block);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;width:30px;height:30px">no</div>`}<div><strong>${escapeHtml(t.label||id)}</strong><div class="small">${escapeHtml(t.name||'')} (${(t.users||[]).length} users)</div></div></div><div style="display:flex;gap:6px"><button data-id="${id}" class="useTpl small ok">利用</button><button data-id="${id}" class="delTpl small danger">✖</button></div>`; 
+        const iconHtml = t.icon ? `<img src="${t.icon}" class="img-preview" />` : `<div class="img-preview" style="background:var(--block);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:10px;width:30px;height:30px">no</div>`;
+        div.innerHTML = `<div style="display:flex;gap:8px;align-items:center">${iconHtml}<div><strong>${escapeHtml(t.label||id)}</strong><div class="small">${escapeHtml(t.name||'')} (${(t.users||[]).length} users)</div></div></div><div style="display:flex;gap:6px"><button data-id="${id}" class="useTpl small ok">利用</button><button data-id="${id}" class="delTpl small danger">✖</button></div>`; 
         out.appendChild(div); 
         
         const opt = document.createElement('option');
@@ -501,17 +781,14 @@ function refreshTplUI(){
         selExec.appendChild(opt);
     }); 
     
-    // Select dropdown in Exec view
     selExec.onchange = (e) => applyTemplateToExec(e.target.value);
     
-    // List buttons
     Array.from(document.getElementsByClassName('useTpl')).forEach(b=> b.onclick = ()=> applyTemplateToExec(b.dataset.id) ); 
     Array.from(document.getElementsByClassName('delTpl')).forEach(b=> b.onclick = ()=> { 
         if(confirm('削除しますか？')){ delete DB.templates[b.dataset.id]; saveDB(); refreshTplUI(); } 
     }); 
 }
 
-// SAVE TEMPLATE using current EXEC form values
 $('saveTemplate').onclick = ()=>{ 
     const label = prompt('テンプレートのラベルを入力してください:');
     if (!label) return;
@@ -546,7 +823,6 @@ function applyTemplateToExec(id){
         DB.icon = t.icon; saveDB(); 
         $('iconPreview').src = DB.icon; 
     } 
-    // Executeタブに移動
     switchTabs('tabExec'); 
     appendLog(`Template loaded: ${t.label}`);
 }
@@ -588,7 +864,7 @@ function defaultBlockForType(type){
 }
 function summaryForBlock(obj){ 
     if(!obj) return ''; 
-    if(obj.type==='api') return `${obj.props.method||'GET'} ${obj.props.path||'...'}${obj.props.extract ? ` (Save: ${obj.props.extract.var})` : ''}`; 
+    if(obj.type==='api') return `${obj.props.method||'GET'} ${obj.props.path||'...'}${obj.props.extract && obj.props.extract.var ? ` (Save: ${obj.props.extract.var})` : ''}`; 
     if(obj.type==='wait') return `Wait ${obj.props.sec||1}s`; 
     if(obj.type==='loop') return `Loop ${obj.props.count||1} times`; 
     if(obj.type==='cond'){ 
@@ -609,7 +885,7 @@ function makeWBlock(obj){
     el.querySelector('.editBtn').onclick = (ev)=>{ ev.stopPropagation(); selectBlock(el); openBlockConfig(el); }; 
     el.querySelector('.delBtn').onclick = (ev)=>{ ev.stopPropagation(); if(confirm('削除しますか？')){ el.remove(); refreshSeqPreview(); selectedBlockEl = null; $('blockConfigWrap').style.display = 'none'; } }; 
     el.querySelector('.upBtn').onclick = (ev)=>{ ev.stopPropagation(); const p = el.previousElementSibling; if(p) el.parentNode.insertBefore(el, p); refreshSeqPreview(); }; 
-    el.querySelector('.downBtn').onclick = (ev)=>{ ev.stopPropagation(); const n = el.nextElementSibling; if(n) el.parentNode.insertBefore(n, el); refreshSeqPreview(); }; 
+    el.querySelector('.downBtn').onclick = (ev)=>{ ev.stopPropagation(); const n = el.nextElementSibling; if(n && n.classList.contains('wblock')) el.parentNode.insertBefore(n, el); refreshSeqPreview(); }; 
     return el; 
 }
 Array.from(document.getElementsByClassName('block')).forEach((b, idx)=>{ 
@@ -626,7 +902,7 @@ Array.from(document.getElementsByClassName('block')).forEach((b, idx)=>{
 });
 workspace.addEventListener('drop', (e)=>{ 
     e.preventDefault(); const d = e.dataTransfer.getData('text/plain'); 
-    const afterElement = getDragAfterElement(workspace, e.clientX, e.clientY); 
+    const afterElement = getDragAfterElement(workspace, e.clientY); 
     if(!d) return; 
     if(d.startsWith('palette:')){ 
         const type = d.split(':')[1]; 
@@ -634,7 +910,7 @@ workspace.addEventListener('drop', (e)=>{
         const w = makeWBlock(obj); 
         if(afterElement) workspace.insertBefore(w, afterElement); else workspace.appendChild(w); 
         selectBlock(w); 
-        openBlockConfig(w); // 自動で設定画面を開く
+        openBlockConfig(w); 
         refreshSeqPreview(); 
     } else if(d.startsWith('workspace:')){ 
         const id = d.split(':')[1]; 
@@ -646,11 +922,11 @@ workspace.addEventListener('drop', (e)=>{
     } 
 });
 workspace.addEventListener('dragover', e=> e.preventDefault());
-function getDragAfterElement(container, x, y){ 
+function getDragAfterElement(container, y){ 
     const draggableElements = [...container.querySelectorAll('.wblock:not(.dragging)')]; 
     return draggableElements.reduce((closest, child)=>{ 
         const rect = child.getBoundingClientRect(); 
-        const offset = y - rect.top - child.offsetHeight/2; // 常に垂直方向
+        const offset = y - rect.top - child.offsetHeight/2; 
         if(offset < 0 && offset > closest.offset){ 
             return {offset:offset, element:child}; 
         }else{ 
@@ -665,7 +941,7 @@ function selectBlock(el){
     openBlockConfig(el); 
 }
 function openBlockConfig(el){ 
-    switchTabs('tabScratch'); // rawAPIビューに切り替え
+    switchTabs('tabScratch'); 
     switchSideTab('tabSideConfig'); 
 
     const cfg = $('blockConfig'); 
@@ -673,80 +949,123 @@ function openBlockConfig(el){
     cfg.innerHTML = ''; 
     const obj = el._data; 
 
-    // Configuration UI generation (Simplified for this version)
+    // Configuration UI generation
     if(obj.type==='api'){ 
-        cfg.innerHTML = `<label>Method</label><input id="cfg_method" type="text" value="${escapeHtml(obj.props.method||'GET')}" /><label>Path ({{var}} を利用可)</label><input id="cfg_path" type="text" value="${escapeHtml(obj.props.path||'/users/@me')}" /><label>Body (JSON, {{var}} 可)</label><textarea id="cfg_body" style="min-height:60px">${obj.props.body?escapeHtml(JSON.stringify(obj.props.body,null,2)):''}</textarea><div class="title" style="margin-top:10px">Extract Value</div><label>Save to variable</label><input id="cfg_extract_var" type="text" value="${escapeHtml(obj.props.extract?.var||'')}" placeholder="例: channel_id" /><label>JSONPath</label><input id="cfg_extract_path" type="text" value="${escapeHtml(obj.props.extract?.path||'')}" placeholder="例: [0].id または .token" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; 
+        cfg.innerHTML = `<label>Method</label><input id="cfg_method" type="text" value="${escapeHtml(obj.props.method||'POST')}" /><label>Path ({{var}} を利用可)</label><input id="cfg_path" type="text" value="${escapeHtml(obj.props.path||'/users/@me')}" /><label>Body (JSON, {{var}} 可)</label><textarea id="cfg_body" style="min-height:60px">${obj.props.body?escapeHtml(JSON.stringify(obj.props.body,null,2)):''}</textarea><div class="title" style="margin-top:10px">Extract Value</div><label>Save to variable</label><input id="cfg_extract_var" type="text" value="${escapeHtml(obj.props.extract?.var||'')}" placeholder="例: channel_id" /><label>JSONPath</label><input id="cfg_extract_path" type="text" value="${escapeHtml(obj.props.extract?.path||'')}" placeholder="例: id または [0].token" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; 
     } else if(obj.type==='wait'){ 
         cfg.innerHTML = `<label>Seconds</label><input id="cfg_sec" type="number" value="${escapeHtml(String(obj.props.sec||1))}" min="0.1" step="0.1" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; 
-    } else if(obj.type==='loop'){ 
-        cfg.innerHTML = `<label>Count</label><input id="cfg_count" type="number" value="${escapeHtml(String(obj.props.count||1))}" min="1" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; 
-    } else if(obj.type==='cond'){ 
-        cfg.innerHTML = `<label>Condition Target</label><select id="cfg_target"><option value="status" ${obj.props.variable === 'status' ? 'selected' : ''}>Status Code (直前API)</option><option value="variable" ${obj.props.variable !== 'status' ? 'selected' : ''}>Variable ({{var}})</option></select><label>Variable Name / Status Code</label><input id="cfg_variable_or_value" type="text" value="${escapeHtml(obj.props.variable === 'status' ? String(obj.props.value !== undefined ? obj.props.value : obj.props.code || 200) : (obj.props.variable || ''))}" placeholder="${obj.props.variable === 'status' ? '例: 200' : '例: channel_id'}" /><label>Comparison Value</label><input id="cfg_value" type="text" value="${escapeHtml(String(obj.props.value !== undefined ? obj.props.value : ''))}" placeholder="比較値 (例: 'Success' または 123)" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; 
-        $('cfg_target').onchange = (e)=>{ 
-            $('cfg_variable_or_value').value = ''; 
-            $('cfg_variable_or_value').placeholder = e.target.value === 'status' ? '例: 200' : '例: channel_id'; 
-            $('cfg_value').style.display = e.target.value === 'status' ? 'none' : 'block';
-            $('cfg_value').previousElementSibling.style.display = e.target.value === 'status' ? 'none' : 'block';
-        }; 
-        $('cfg_target').dispatchEvent(new Event('change')); // 初期実行
-    } else if(obj.type==='comment'){ 
-        cfg.innerHTML = `<label>Text</label><textarea id="cfg_text">${escapeHtml(obj.props.text||'')}</textarea><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; 
-    } 
+    } else if(obj.type==='loop'){
+        cfg.innerHTML = `<label>Count</label><input id="cfg_count" type="number" value="${escapeHtml(String(obj.props.count||2))}" min="1" /><div class="muted">このブロックから次のブロックまでを指定回数繰り返します。</div><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`;
+    } else if(obj.type==='cond'){
+        cfg.innerHTML = `<label>Target Variable</label><input id="cfg_var" type="text" value="${escapeHtml(obj.props.variable||'status')}" placeholder="status または 変数名" /><label>Required Value</label><input id="cfg_value" type="text" value="${escapeHtml(String(obj.props.value !== undefined ? obj.props.value : obj.props.code || 200))}" placeholder="200 または 'token_string'" /><div class="muted">条件が満たされない場合、次のブロックに進みます。</div><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`;
+    } else if(obj.type==='comment'){
+        cfg.innerHTML = `<label>Comment Text</label><input id="cfg_text" type="text" value="${escapeHtml(obj.props.text||'Note')}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`;
+    }
+    
+    // Save button logic
+    $('cfgSave').onclick = () => {
+        const data = el._data.props;
+        
+        if (el._data.type === 'api') {
+            data.method = $('cfg_method').value.toUpperCase();
+            data.path = $('cfg_path').value;
+            try {
+                const bodyVal = $('cfg_body').value.trim();
+                data.body = bodyVal ? JSON.parse(bodyVal) : null;
+            } catch(e) {
+                alert('Body JSONが不正です: ' + e.message);
+                return;
+            }
+            const exVar = $('cfg_extract_var').value.trim();
+            const exPath = $('cfg_extract_path').value.trim();
+            if (exVar && exPath) {
+                data.extract = { var: exVar, path: exPath };
+            } else {
+                data.extract = null;
+            }
+        } else if (el._data.type === 'wait') {
+            data.sec = Number($('cfg_sec').value) || 1;
+        } else if (el._data.type === 'loop') {
+            data.count = Number($('cfg_count').value) || 2;
+        } else if (el._data.type === 'cond') {
+            data.variable = $('cfg_var').value;
+            // 数値と文字列を区別せず保存
+            data.value = $('cfg_value').value; 
+            if (data.variable === 'status' && !isNaN(Number(data.value))) {
+                 data.value = Number(data.value);
+            }
+            delete data.code; // codeは旧互換性のため
+        } else if (el._data.type === 'comment') {
+            data.text = $('cfg_text').value;
+        }
 
-    $('cfgSave').onclick = ()=>{ 
-        try{ 
-            if(obj.type==='api'){ 
-                // ... (V3と同じ保存ロジック - JSON parseと値の取得)
-                const btxt = $('cfg_body').value.trim(); 
-                obj.props.body = btxt? JSON.parse(btxt) : null; 
-                const htxt = ''; // Headers simplified out of modal in V4
-                obj.props.headers = htxt? JSON.parse(htxt) : {}; 
-                obj.props.method = $('cfg_method').value.trim().toUpperCase()||'GET'; 
-                obj.props.path = $('cfg_path').value.trim()||'/users/@me'; 
-                const ext_var = $('cfg_extract_var').value.trim(); 
-                const ext_path = $('cfg_extract_path').value.trim(); 
-                if(ext_var && ext_path) obj.props.extract = {var:ext_var, path:ext_path}; 
-                else obj.props.extract = null; 
-            } else if(obj.type==='wait'){ 
-                obj.props.sec = Number($('cfg_sec').value)||1; 
-            } else if(obj.type==='loop'){ 
-                obj.props.count = Number($('cfg_count').value)||1; 
-            } else if(obj.type==='cond'){ 
-                const target = $('cfg_target').value; 
-                if (target === 'status') {
-                    obj.props.variable = 'status';
-                    obj.props.code = Number($('cfg_variable_or_value').value) || 200;
-                    obj.props.value = undefined;
-                } else {
-                    obj.props.variable = $('cfg_variable_or_value').value.trim();
-                    obj.props.code = undefined;
-                    obj.props.value = $('cfg_value').value;
-                }
-            } else if(obj.type==='comment'){ 
-                obj.props.text = $('cfg_text').value||''; 
-            } 
-        }catch(e){ alert('設定エラー: JSONの形式を確認してください。'); return; } 
-        el.querySelector('.meta').textContent = obj.type.toUpperCase(); 
-        el.querySelector('.summary').textContent = summaryForBlock(obj); 
-        refreshSeqPreview(); 
-    }; 
+        // ブロックのサマリーを更新
+        el.querySelector('.summary').textContent = summaryForBlock(el._data);
+        refreshSeqPreview();
+        appendLog(`Block ${el._data.type} updated.`);
+    };
 }
-function workspaceToSequence(){ return Array.from(workspace.children).map(c=> c._data ? JSON.parse(JSON.stringify(c._data)) : null).filter(Boolean); }
-function loadSequenceObjectToWorkspace(blocks){ workspace.innerHTML=''; blockCounter=0; if(!Array.isArray(blocks)) return; for(const b of blocks){ const el = makeWBlock(b); workspace.appendChild(el); } refreshSeqPreview(); }
-function loadSequenceIntoWorkspace(id){ const s = DB.sequences[id]; if(!s){ alert('sequence not found'); return; } loadSequenceObjectToWorkspace(s.blocks||[]); }
-function refreshSeqPreview(){ $('seqPreview').textContent = JSON.stringify(workspaceToSequence(), null, 2); }
-$('clearWorkspace').onclick = ()=>{ if(confirm('ワークスペースをクリアしますか？')){ loadSequenceObjectToWorkspace([]); } };
+function workspaceToSequence(){ 
+    const arr = []; 
+    Array.from(workspace.children).forEach(c=>{ 
+        if(c.classList.contains('wblock')) arr.push(c._data); 
+    }); 
+    return arr; 
+}
+function loadSequenceIntoWorkspace(id){
+    const s = DB.sequences[id];
+    if(!s || !s.blocks) return;
+    $('workspace').innerHTML = ''; 
+    $('seqName').value = s.name;
+    s.blocks.forEach(b=>{
+        const w = makeWBlock(b);
+        workspace.appendChild(w);
+    });
+    refreshSeqPreview();
+    appendLog(`Sequence loaded: ${s.name}`);
+}
+$('clearWorkspace').onclick = ()=>{ 
+    if(confirm('ワークスペースをクリアしますか？')) {
+        workspace.innerHTML = '<div class="muted" style="text-align:center; padding-top:50px">ここにブロックをドラッグ＆ドロップしてください</div>';
+        $('seqName').value = '';
+        selectedBlockEl = null;
+        $('blockConfigWrap').style.display = 'none';
+        $('seqPreview').textContent = '[]';
+        appendLog('Workspace cleared.');
+    }
+};
+function refreshSeqPreview(){ $('seqPreview').textContent = JSON.stringify(workspaceToSequence(),null,2); }
 
-// --- Execution Logic (Same as V3 but uses V4 form fields) ---
-let runStopFlag = false;
-$('btnStop').onclick = ()=>{ runStopFlag = true; $('btnStop').style.display='none'; appendLog('停止リクエストを受け取りました'); };
-window._scratch_context = {}; // For rawAPI
-function refreshContextView() { $('contextView').textContent = JSON.stringify(window._scratch_context, null, 2); }
-// ... (fetchWithRetry, injectVariables, extractValue, compareValues, runSequence - V3と同一のロジック) ...
-// (V3の runSequence, fetchWithRetry, injectVariables, extractValue, compareValues の関数コードをここにコピーペースト)
-// ...
-// --- V3の実行ロジック群をここに挿入してください ---
-// ...
+
+// --- Tab Management ---
+function switchTabs(activeTabId){
+    const tabs = ['tabExec', 'tabScratch'];
+    const views = ['viewExec', 'viewScratch'];
+    tabs.forEach(id => $(id).classList.remove('active'));
+    views.forEach(id => $(id).style.display = 'none');
+
+    const viewId = activeTabId === 'tabExec' ? 'viewExec' : 'viewScratch';
+    $(activeTabId).classList.add('active');
+    $(viewId).style.display = 'block';
+}
+function switchSideTab(activeTabId){
+    const tabs = ['tabSideTemplates', 'tabSideSequences', 'tabSideConfig'];
+    const views = ['sideTemplates', 'sideSequences', 'sideConfig'];
+    tabs.forEach(id => $(id).classList.remove('active'));
+    views.forEach(id => $(id).style.display = 'none');
+
+    const viewId = activeTabId.replace('tabSide', 'side');
+    $(activeTabId).classList.add('active');
+    $(viewId).style.display = 'flex'; // sideConfigはflex
+}
+$('tabExec').onclick = () => switchTabs('tabExec');
+$('tabScratch').onclick = () => switchTabs('tabScratch');
+$('tabSideTemplates').onclick = () => switchSideTab('tabSideTemplates');
+$('tabSideSequences').onclick = () => switchSideTab('tabSideSequences');
+$('tabSideConfig').onclick = () => switchSideTab('tabSideConfig');
+
+
+// --- Group Creation (簡易実行) のロジック ---
 $('btnExec').onclick = async ()=>{ 
     if(!$('consentExec').checked){ alert('実行前に同意してください'); return; } 
     const sel = $('selectToken').value; 
@@ -758,44 +1077,52 @@ $('btnExec').onclick = async ()=>{
     const count = Number($('exec_count').value) || 1; 
 
     runStopFlag = false; 
-    // V4ではSequence Builder側でのみ停止ボタンを表示
-    
     $('execLog').textContent = '';
     appendLog('開始: Create Group x'+count); 
     
-    // (V3の実行ロジックをここに挿入)
+    $('btnStop').style.display='inline-block'; // 簡易実行でも停止ボタンを表示
+    
     for(let i=0;i<count;i++){ 
         if(runStopFlag) break; 
         try{ 
+            // 1. グループチャット作成
             const res = await fetchWithRetry('https://discord.com/api/v9/users/@me/channels', { 
-                method:'POST', headers:{'Authorization':token,'Content-Type':'application/json'}, 
+                method:'POST', headers:{'Content-Type':'application/json'}, 
                 body: JSON.stringify({recipients:rec}) 
-            }); 
+            }, token); 
+
             const jtxt = await res.text().catch(()=>null); 
             logLineExec(`[Create ${i+1}] ${res.status} ${jtxt? (jtxt.length>400? jtxt.slice(0,400)+'...': jtxt):''}`); 
-            window._scratch_last_status = res.status; 
-            if(res.ok && name){ 
+            
+            if(res.ok && (name || DB.icon)){ 
                 let j = null; try{ j = JSON.parse(jtxt); }catch(e){} 
                 if(j && j.id){ 
                     const cid = j.id; 
-                    const patchBody = {name: name + (count>1 ? `_${i+1}` : '')}; 
+                    const patchBody = {};
+                    if(name) patchBody.name = name + (count>1 ? `_${i+1}` : ''); 
                     if(DB.icon) patchBody.icon = DB.icon; 
+                    
+                    // 2. グループチャット名/アイコンのPATCH
                     const pres = await fetchWithRetry('https://discord.com/api/v9/channels/'+cid, { 
-                        method:'PATCH', headers:{'Authorization':token,'Content-Type':'application/json'}, 
+                        method:'PATCH', headers:{'Content-Type':'application/json'}, 
                         body: JSON.stringify(patchBody) 
-                    }); 
+                    }, token);
+
                     const ptxt = await pres.text().catch(()=>null); 
                     logLineExec(`[PATCH ${cid}] ${pres.status} ${ptxt?ptxt.slice(0,400):''}`); 
-                    window._scratch_last_status = pres.status; 
-                } else logLineExec('channel id が返らず name を PATCH できませんでした'); 
+                } else logLineExec('channel id が返らず name/icon を PATCH できませんでした'); 
             } 
         }catch(e){ logLineExec('ERROR create: '+e.message); } 
+        // 連続実行の間に短い待ち時間を入れる（レートリミット対策）
+        await new Promise(resolve => setTimeout(resolve, 500));
     }
     
     runStopFlag = false; 
+    $('btnStop').style.display='none';
     appendLog('完了'); 
 };
 
+// --- Sequence Builder (高度な実行) のロジック ---
 $('runSeq').onclick = async ()=>{ 
     const sel = $('selectToken').value; 
     if(!sel){ alert('Token を選択してください'); return; } 
@@ -805,6 +1132,7 @@ $('runSeq').onclick = async ()=>{
     runStopFlag = false; 
     $('btnStop').style.display='inline-block'; 
     $('scratchLog').textContent = ''; 
+    refreshContextView();
     try{ 
         const seq = workspaceToSequence(); 
         await runSequence(seq, token); 
@@ -816,77 +1144,17 @@ $('runSeq').onclick = async ()=>{
     appendLog('Sequence 実行終了'); 
     refreshContextView(); 
 };
+$('btnStop').onclick = ()=>{ runStopFlag = true; $('btnStop').style.display='none'; appendLog('停止リクエストを受け付けました'); };
 
-// --- Tab Switching (Main Tabs) ---
-function switchTabs(targetId){
-    const mainTabs = ['tabExec', 'tabScratch'];
-    const views = ['viewExec', 'viewScratch'];
-    
-    mainTabs.forEach(id => {
-        const btn = $(id);
-        const view = $(views[mainTabs.indexOf(id)]);
-        if (id === targetId) {
-            btn.classList.add('active');
-            view.style.display = 'block';
-            if (id === 'tabScratch') {
-                $('execLogContainer').style.display = 'none';
-                $('blockConfigWrap').style.display = selectedBlockEl ? 'block' : 'none';
-                switchSideTab('tabSideConfig');
-            } else {
-                $('execLogContainer').style.display = 'block';
-            }
-        } else {
-            btn.classList.remove('active');
-            view.style.display = 'none';
-        }
-    });
-}
-$('tabExec').onclick = ()=> switchTabs('tabExec');
-$('tabScratch').onclick = ()=> switchTabs('tabScratch');
-
-// --- Tab Switching (Side Tabs) ---
-function switchSideTab(targetId){
-    const sideTabs = ['tabSideTemplates', 'tabSideSequences', 'tabSideConfig'];
-    const views = ['sideTemplates', 'sideSequences', 'sideConfig'];
-
-    sideTabs.forEach(id => {
-        const btn = $(id);
-        const view = $(views[sideTabs.indexOf(id)]);
-        if (id === targetId) {
-            btn.classList.add('active');
-            view.style.display = 'flex';
-            if (id === 'tabSideConfig' && $('viewScratch').style.display !== 'none') {
-                 $('scratchLogContainer').style.display = 'flex';
-            } else {
-                $('scratchLogContainer').style.display = 'none';
-            }
-        } else {
-            btn.classList.remove('active');
-            view.style.display = 'none';
-        }
-    });
-    if (targetId !== 'tabSideConfig') {
-        $('blockConfigWrap').style.display = 'none';
-    } else {
-        if ($('viewScratch').style.display !== 'none' && selectedBlockEl) {
-            $('blockConfigWrap').style.display = 'block';
-        }
-    }
-}
-$('tabSideTemplates').onclick = ()=> switchSideTab('tabSideTemplates');
-$('tabSideSequences').onclick = ()=> switchSideTab('tabSideSequences');
-$('tabSideConfig').onclick = ()=> switchSideTab('tabSideConfig');
 
 // --- Initial Load ---
-function loadInitial(){ 
-    if(DB.icon){ $('iconPreview').src = DB.icon; } else { $('iconPreview').src = ''; } 
-    refreshTokenUI(); refreshTplUI(); refreshSeqList(); 
-    switchTabs('tabExec');
-    switchSideTab('tabSideTemplates');
-}
-window.onload = loadInitial;
-// ... [V3の実行ロジックの補完が必要] ...
-// （セキュリティ上の理由から、この環境では複雑なJavaScriptの実行ロジックは省略し、構造のみ提供しています。実際の動作にはV3のロジックの補完が必要です。）
+document.addEventListener('DOMContentLoaded', ()=>{
+    refreshTokenUI();
+    refreshTplUI();
+    refreshSeqList();
+    refreshSeqPreview(); // 初回ロード時もプレビューを初期化
+});
+
 </script>
 </body>
 </html>
