@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Group Tools — API Execute (V4: White Theme, Easy Use)</title>
+<title>Group Tools — API Execute (V4: White Theme, Enhanced Loop)</title>
 <style>
 /* ------------------------------------------------ */
 /* ☀️ Light Theme v4 (Simplified Workflow) */
@@ -146,7 +146,7 @@ button.small{padding:6px 10px;font-size:13px}
 .info-item strong { font-size: 14px; color: var(--accent-dark); }
 .info-item .small { font-size: 12px; }
 
-/* --- 画像サイズ統一のための修正 --- */
+/* 画像サイズ統一 */
 .img-preview { 
     width: 30px; 
     height: 30px; 
@@ -161,7 +161,6 @@ button.small{padding:6px 10px;font-size:13px}
 .list-container .item .img-preview {
     margin-top: 0; 
 }
-/* -------------------------------------- */
 
 /* Sequence Builder (rawAPI) */
 #scratchArea {
@@ -192,7 +191,13 @@ button.small{padding:6px 10px;font-size:13px}
     transition: background 0.2s;
     font-size: 20px; /* アイコンを想定 */
 }
-.palette .block:hover { background: var(--accent-dark); }
+/* Loop blocks should have a distinct color */
+.palette .block[data-type^="loop"] {
+    background: #e3931c; /* Orange color for Loop */
+}
+.palette .block:hover{background:var(--accent-dark)}
+.palette .block[data-type^="loop"]:hover{background: #c77b0d;}
+
 #workspace {
     min-height: 300px;
     border: 2px dashed var(--border-strong);
@@ -220,6 +225,7 @@ button.small{padding:6px 10px;font-size:13px}
 .wblock:hover{box-shadow:0 0 0 2px var(--accent-light)}
 .wblock.selected{box-shadow:0 0 0 2px var(--accent) !important;}
 .wblock .meta{font-size:15px;font-weight:700;color:var(--accent)}
+.wblock[data-type^="loop"] .meta { color: #c77b0d; } /* Loop Meta Color */
 .wblock .summary{font-size:13px;color:var(--muted)}
 .wblock .btns button { background: var(--block-contrast); color: var(--text-primary); border: 1px solid var(--border); }
 .wblock .btns button:hover { background: var(--border); }
@@ -389,7 +395,8 @@ pre{
                         <div class="title" style="font-size:14px; margin-top:0;">Blocks</div>
                         <div class="block" draggable="true" data-type="api" title="API Call">📡</div>
                         <div class="block" draggable="true" data-type="wait" title="Wait (Delay)">⏱️</div>
-                        <div class="block" draggable="true" data-type="loop" title="Loop (Repeat)">🔁</div>
+                        <div class="block" draggable="true" data-type="loop_start" title="Loop Start">▶️</div>
+                        <div class="block" draggable="true" data-type="loop_end" title="Loop End">⏹️</div>
                         <div class="block" draggable="true" data-type="cond" title="If Condition">❓</div>
                         <div class="block" draggable="true" data-type="comment" title="Comment">💬</div>
                     </div>
@@ -573,8 +580,9 @@ let runStopFlag = false;
 window._scratch_context = {}; 
 function refreshContextView() { $('contextView').textContent = JSON.stringify(window._scratch_context, null, 2); }
 
+// --- 強化された Sequence 実行ロジック ---
 async function runSequence(sequence, token) {
-    const loopStack = [];
+    const loopStack = []; // { start: index, count: total, current: done }
     let i = 0;
     window._scratch_context.status = undefined; // 実行ごとにリセット
 
@@ -587,7 +595,6 @@ async function runSequence(sequence, token) {
         const block = sequence[i];
         const props = block.props || {};
         
-        // ログの先頭に実行中のブロックを表示
         appendLog(`-> [${i + 1}/${sequence.length}] ${summaryForBlock(block)}`);
 
         switch (block.type) {
@@ -618,10 +625,10 @@ async function runSequence(sequence, token) {
                     try {
                         j = jtxt && jtxt.trim() ? JSON.parse(jtxt) : null;
                     } catch (e) {
-                        // JSONデコードエラーは無視（レスポンスが空の場合など）
+                        // JSONデコードエラーは無視
                     }
                     
-                    window._scratch_context.status = res.status; // status変数としてコンテキストに保存
+                    window._scratch_context.status = res.status; 
                     
                     if (j) {
                         logDetails = jtxt.length > 100 ? JSON.stringify(j).slice(0, 100) + '...' : jtxt;
@@ -646,7 +653,7 @@ async function runSequence(sequence, token) {
                     }
                 } catch (e) {
                     appendLog(`[API CALL ERROR] ${e.message}`);
-                    throw e; // シーケンスを中断
+                    throw e; 
                 }
                 i++;
                 break;
@@ -657,40 +664,11 @@ async function runSequence(sequence, token) {
                 await new Promise(resolve => setTimeout(resolve, delay));
                 i++;
                 break;
-
-            case 'loop':
-                const currentLoop = loopStack[loopStack.length - 1];
-                const count = Number(props.count) || 1;
-                
-                if (!currentLoop || currentLoop.start !== i) {
-                    // 新しいループを開始
-                    loopStack.push({ 
-                        start: i, 
-                        count: count, 
-                        current: 0 
-                    });
-                    i++;
-                } else {
-                    // ループの末尾に到達 (または継続)
-                    currentLoop.current++;
-                    
-                    if (currentLoop.current < count) {
-                        // 継続: ループ開始位置に戻る
-                        i = currentLoop.start + 1;
-                        appendLog(`Loop ${currentLoop.current + 1}/${count} - Restarting...`);
-                    } else {
-                        // 終了: ループをポップし、次に進む
-                        loopStack.pop();
-                        i++;
-                        appendLog('Loop Finished.');
-                    }
-                }
-                break;
                 
             case 'cond':
                 let conditionMet = false;
                 const targetVar = props.variable || 'status';
-                const requiredValue = props.value !== undefined ? props.value : props.code; 
+                const requiredValue = props.value !== undefined ? props.value : 200; 
                 
                 let actualValue;
                 if (targetVar === 'status') {
@@ -710,8 +688,63 @@ async function runSequence(sequence, token) {
                 if (conditionMet) {
                     i++; // 条件が満たされたら次に進む
                 } else {
-                    // 条件が満たされない場合、次のブロックに進む
-                    i++; 
+                    i++; // 条件が満たされない場合、次のブロックに進む (スキップ機能は未実装)
+                }
+                break;
+
+            case 'loop_start':
+                const count = Number(props.count) || 1;
+                
+                if (loopStack.length === 0 || loopStack[loopStack.length - 1].start !== i) {
+                    // 新しいループを開始
+                    loopStack.push({ 
+                        start: i, 
+                        count: count, 
+                        current: 0 
+                    });
+                } else if (loopStack[loopStack.length - 1].current >= count) {
+                     // ループ回数が終了している場合、loop_endを探してスキップ
+                    appendLog(`Loop ${loopStack.length} Finished. Skipping to end...`);
+                    const startIndex = i;
+                    let nestingLevel = 1;
+                    let foundEnd = false;
+                    
+                    for (let j = i + 1; j < sequence.length; j++) {
+                        if (sequence[j].type === 'loop_start') nestingLevel++;
+                        if (sequence[j].type === 'loop_end') nestingLevel--;
+                        
+                        if (nestingLevel === 0) {
+                            i = j + 1; // loop_endの次へ移動
+                            loopStack.pop(); // スタックから削除
+                            foundEnd = true;
+                            break;
+                        }
+                    }
+                    if (!foundEnd) throw new Error('Loop Start に対応する Loop End が見つかりません。');
+                    
+                    break; // スキップ処理が終わったので次のwhileへ
+                }
+                // 次のブロックに進む
+                i++;
+                break;
+                
+            case 'loop_end':
+                if (loopStack.length === 0) {
+                    throw new Error('Loop End が Loop Start に対応していません。');
+                }
+                
+                const currentLoop = loopStack[loopStack.length - 1];
+                currentLoop.current++;
+
+                if (currentLoop.current < currentLoop.count) {
+                    // 継続: ループ開始位置に戻る
+                    i = currentLoop.start;
+                    appendLog(`Loop ${currentLoop.current + 1}/${currentLoop.count} - Restarting...`);
+                } else {
+                    // 終了: ループをポップし、次に進む
+                    loopStack.pop();
+                    i++;
+                    appendLog('Loop Ended.');
                 }
                 break;
                 
@@ -844,6 +877,16 @@ $('saveSeq').onclick = ()=>{
     if(!name){ alert('Sequence name を入力してください'); return; } 
     const data = workspaceToSequence(); 
     if(data.length === 0){ alert('ブロックがありません'); return; } 
+    
+    // ループ整合性チェック
+    const loopStarts = data.filter(b => b.type === 'loop_start').length;
+    const loopEnds = data.filter(b => b.type === 'loop_end').length;
+    if (loopStarts !== loopEnds) {
+        alert('ループブロックの開始と終了の数が一致していません。Loop Start: ' + loopStarts + ', Loop End: ' + loopEnds);
+        return;
+    }
+    // TODO: ループネストの整合性チェック
+
     const id = 'seq_'+Date.now(); DB.sequences = DB.sequences || {}; 
     DB.sequences[id] = {name:name, blocks:data}; saveDB(); refreshSeqList(); 
     $('seqName').value=''; 
@@ -857,7 +900,8 @@ let selectedBlockEl = null;
 function defaultBlockForType(type){ 
     if(type==='api') return {type:'api', props:{method:'POST', path:'/channels/{{channel_id}}/messages', body:{content:"hello"}, headers:{}, extract:null}}; 
     if(type==='wait') return {type:'wait', props:{sec:1}}; 
-    if(type==='loop') return {type:'loop', props:{count:2}}; 
+    if(type==='loop_start') return {type:'loop_start', props:{count:2}}; 
+    if(type==='loop_end') return {type:'loop_end', props:{}}; 
     if(type==='cond') return {type:'cond', props:{variable:'status', value:200}}; 
     if(type==='comment') return {type:'comment', props:{text:'Note'}}; 
     return {type:type, props:{}}; 
@@ -866,9 +910,10 @@ function summaryForBlock(obj){
     if(!obj) return ''; 
     if(obj.type==='api') return `${obj.props.method||'GET'} ${obj.props.path||'...'}${obj.props.extract && obj.props.extract.var ? ` (Save: ${obj.props.extract.var})` : ''}`; 
     if(obj.type==='wait') return `Wait ${obj.props.sec||1}s`; 
-    if(obj.type==='loop') return `Loop ${obj.props.count||1} times`; 
+    if(obj.type==='loop_start') return `Loop START: ${obj.props.count||1} times`; 
+    if(obj.type==='loop_end') return `Loop END`; 
     if(obj.type==='cond'){ 
-        const val = obj.props.value !== undefined ? obj.props.value : obj.props.code || 200;
+        const val = obj.props.value !== undefined ? obj.props.value : 200;
         return `IF {{${obj.props.variable}}} == ${val}`; 
     } 
     if(obj.type==='comment') return obj.props.text||''; 
@@ -876,20 +921,27 @@ function summaryForBlock(obj){
 }
 function makeWBlock(obj){ 
     const id = 'b_'+(++blockCounter); obj._id = id; 
-    const el = document.createElement('div'); el.className='wblock'; el.draggable = true; el.dataset.id = id; 
+    const el = document.createElement('div'); el.className='wblock'; el.draggable = true; el.dataset.id = id; el.dataset.type = obj.type;
     el.innerHTML = `<div><div class="meta">${escapeHtml(obj.type.toUpperCase())}</div><div class="summary">${escapeHtml(summaryForBlock(obj))}</div></div><div class="btns" style="display:flex; gap:5px;"><button class="small ghost editBtn" title="設定">⚙️</button><button class="small ghost upBtn" title="上へ">▲</button><button class="small ghost downBtn" title="下へ">▼</button><button class="small danger delBtn" title="削除">✖</button></div>`; 
     el._data = obj; 
     el.addEventListener('dragstart', (e)=>{ el.classList.add('dragging'); e.dataTransfer.setData('text/plain', 'workspace:'+id); }); 
     el.addEventListener('dragend', ()=>{ el.classList.remove('dragging'); }); 
     el.addEventListener('click', (e)=> { e.stopPropagation(); selectBlock(el); } ); 
-    el.querySelector('.editBtn').onclick = (ev)=>{ ev.stopPropagation(); selectBlock(el); openBlockConfig(el); }; 
+    
+    const editBtn = el.querySelector('.editBtn');
+    if (obj.type === 'loop_end') {
+        editBtn.style.display = 'none'; // loop_endは設定なし
+    }
+    editBtn.onclick = (ev)=>{ ev.stopPropagation(); selectBlock(el); openBlockConfig(el); }; 
+    
     el.querySelector('.delBtn').onclick = (ev)=>{ ev.stopPropagation(); if(confirm('削除しますか？')){ el.remove(); refreshSeqPreview(); selectedBlockEl = null; $('blockConfigWrap').style.display = 'none'; } }; 
     el.querySelector('.upBtn').onclick = (ev)=>{ ev.stopPropagation(); const p = el.previousElementSibling; if(p) el.parentNode.insertBefore(el, p); refreshSeqPreview(); }; 
     el.querySelector('.downBtn').onclick = (ev)=>{ ev.stopPropagation(); const n = el.nextElementSibling; if(n && n.classList.contains('wblock')) el.parentNode.insertBefore(n, el); refreshSeqPreview(); }; 
+    
     return el; 
 }
 Array.from(document.getElementsByClassName('block')).forEach((b, idx)=>{ 
-    const t = b.dataset.type || ['api','wait','loop','cond','comment'][idx]; b.dataset.type = t; 
+    const t = b.dataset.type;
     b.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', 'palette:'+t); b.classList.add('dragging'); }); 
     b.addEventListener('dragend', ()=> b.classList.remove('dragging')); 
     b.addEventListener('dblclick', ()=> { 
@@ -897,7 +949,7 @@ Array.from(document.getElementsByClassName('block')).forEach((b, idx)=>{
         workspace.appendChild(el); 
         refreshSeqPreview(); 
         selectBlock(el); 
-        openBlockConfig(el); // 自動で設定画面を開く
+        if (t !== 'loop_end') openBlockConfig(el); 
     }); 
 });
 workspace.addEventListener('drop', (e)=>{ 
@@ -910,7 +962,7 @@ workspace.addEventListener('drop', (e)=>{
         const w = makeWBlock(obj); 
         if(afterElement) workspace.insertBefore(w, afterElement); else workspace.appendChild(w); 
         selectBlock(w); 
-        openBlockConfig(w); 
+        if (type !== 'loop_end') openBlockConfig(w); 
         refreshSeqPreview(); 
     } else if(d.startsWith('workspace:')){ 
         const id = d.split(':')[1]; 
@@ -954,10 +1006,14 @@ function openBlockConfig(el){
         cfg.innerHTML = `<label>Method</label><input id="cfg_method" type="text" value="${escapeHtml(obj.props.method||'POST')}" /><label>Path ({{var}} を利用可)</label><input id="cfg_path" type="text" value="${escapeHtml(obj.props.path||'/users/@me')}" /><label>Body (JSON, {{var}} 可)</label><textarea id="cfg_body" style="min-height:60px">${obj.props.body?escapeHtml(JSON.stringify(obj.props.body,null,2)):''}</textarea><div class="title" style="margin-top:10px">Extract Value</div><label>Save to variable</label><input id="cfg_extract_var" type="text" value="${escapeHtml(obj.props.extract?.var||'')}" placeholder="例: channel_id" /><label>JSONPath</label><input id="cfg_extract_path" type="text" value="${escapeHtml(obj.props.extract?.path||'')}" placeholder="例: id または [0].token" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; 
     } else if(obj.type==='wait'){ 
         cfg.innerHTML = `<label>Seconds</label><input id="cfg_sec" type="number" value="${escapeHtml(String(obj.props.sec||1))}" min="0.1" step="0.1" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; 
-    } else if(obj.type==='loop'){
-        cfg.innerHTML = `<label>Count</label><input id="cfg_count" type="number" value="${escapeHtml(String(obj.props.count||2))}" min="1" /><div class="muted">このブロックから次のブロックまでを指定回数繰り返します。</div><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`;
+    } else if(obj.type==='loop_start'){
+        cfg.innerHTML = `<label>Count</label><input id="cfg_count" type="number" value="${escapeHtml(String(obj.props.count||2))}" min="1" /><div class="muted">このブロックから対応する Loop End ブロックまでを指定回数繰り返します。</div><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`;
+    } else if(obj.type==='loop_end'){
+        cfg.innerHTML = `<div class="title" style="margin-top:0;">Loop End</div><div class="muted">このブロックに設定項目はありません。Sequence Builderで対応する Loop Start ブロックとセットで利用してください。</div>`;
+        $('cfgSave').style.display = 'none';
+        return;
     } else if(obj.type==='cond'){
-        cfg.innerHTML = `<label>Target Variable</label><input id="cfg_var" type="text" value="${escapeHtml(obj.props.variable||'status')}" placeholder="status または 変数名" /><label>Required Value</label><input id="cfg_value" type="text" value="${escapeHtml(String(obj.props.value !== undefined ? obj.props.value : obj.props.code || 200))}" placeholder="200 または 'token_string'" /><div class="muted">条件が満たされない場合、次のブロックに進みます。</div><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`;
+        cfg.innerHTML = `<label>Target Variable</label><input id="cfg_var" type="text" value="${escapeHtml(obj.props.variable||'status')}" placeholder="status または 変数名" /><label>Required Value</label><input id="cfg_value" type="text" value="${escapeHtml(String(obj.props.value !== undefined ? obj.props.value : 200))}" placeholder="200 または 'token_string'" /><div class="muted">条件が満たされない場合、次のブロックに進みます。</div><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`;
     } else if(obj.type==='comment'){
         cfg.innerHTML = `<label>Comment Text</label><input id="cfg_text" type="text" value="${escapeHtml(obj.props.text||'Note')}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`;
     }
@@ -985,16 +1041,14 @@ function openBlockConfig(el){
             }
         } else if (el._data.type === 'wait') {
             data.sec = Number($('cfg_sec').value) || 1;
-        } else if (el._data.type === 'loop') {
+        } else if (el._data.type === 'loop_start') {
             data.count = Number($('cfg_count').value) || 2;
         } else if (el._data.type === 'cond') {
             data.variable = $('cfg_var').value;
-            // 数値と文字列を区別せず保存
             data.value = $('cfg_value').value; 
             if (data.variable === 'status' && !isNaN(Number(data.value))) {
                  data.value = Number(data.value);
             }
-            delete data.code; // codeは旧互換性のため
         } else if (el._data.type === 'comment') {
             data.text = $('cfg_text').value;
         }
@@ -1003,6 +1057,7 @@ function openBlockConfig(el){
         el.querySelector('.summary').textContent = summaryForBlock(el._data);
         refreshSeqPreview();
         appendLog(`Block ${el._data.type} updated.`);
+        $('cfgSave').style.display = 'inline-block';
     };
 }
 function workspaceToSequence(){ 
