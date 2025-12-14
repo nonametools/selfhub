@@ -1,35 +1,289 @@
 <!doctype html>
 <html lang="ja">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Group Tools — API Execute</title>
-
-  <link rel="stylesheet" href="./style.css">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Group Tools — API Execute (Canvas)</title>
+<style>
+  :root{
+    --bg:#071224; --card:#0f1720; --accent:#1f6feb; --muted:#7fa3c7; --ok:#2db85a; --err:#e04d4d;
+    --glass: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    --block:#112033; --block-contrast:#16324b;
+  }
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:#e6eef8}
+  header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(255,255,255,0.03)}
+  h1{margin:0;font-size:18px;color:#9ad0ff}
+  .sub{font-size:12px;color:var(--muted)}
+  .container{max-width:1200px;margin:16px auto;padding:0 16px;display:grid;grid-template-columns:340px 1fr;gap:16px}
+  .card{background:var(--card);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 6px 24px rgba(0,0,0,0.6)}
+  label{display:block;font-size:13px;color:#9fbfe4;margin-top:10px}
+  input[type=text], input[type=password], textarea, select{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#eaf6ff;box-sizing:border-box}
+  textarea{min-height:84px;resize:vertical}
+  .row{display:flex;gap:8px;align-items:center}
+  button{padding:8px 10px;border-radius:8px;border:none;background:var(--accent);color:white;cursor:pointer}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04)}
+  button.small{padding:6px 8px;font-size:13px}
+  .danger{background:var(--err)}
+  .ok{background:var(--ok)}
+  .muted{color:var(--muted);font-size:13px}
+  .list{max-height:200px;overflow:auto;margin-top:8px}
+  .item{padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.02);margin-bottom:6px;background:rgba(255,255,255,0.01);display:flex;justify-content:space-between;align-items:center}
+  .small{font-size:12px;color:#bfe0ff}
+  pre{background:#031324;padding:10px;border-radius:6px;color:#cfefff;overflow:auto;max-height:360px;white-space:pre-wrap}
+  footer{padding:12px;text-align:center;color:var(--muted);font-size:12px}
+  .controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .palette{display:grid;grid-template-columns:1fr;gap:8px}
+  .block{background:var(--block);padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);cursor:grab;color:#eaf6ff}
+  .block.dragging{opacity:0.6}
+  #workspace{min-height:320px;border:1px dashed rgba(255,255,255,0.04);padding:10px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));display:flex;flex-direction:column;gap:8px;overflow:auto}
+  #workspace.horizontal{flex-direction:row;flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;padding:12px}
+  .wblock{background:var(--block-contrast);padding:8px;border-radius:6px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;cursor:grab;min-width:220px}
+  #workspace.horizontal .wblock{display:inline-flex;margin-right:8px;margin-bottom:0;min-width:280px}
+  .wblock .meta{font-size:12px;color:#cfefff}
+  .wblock .btns{display:flex;gap:6px}
+  .trash{background:#2b1820;padding:6px 10px;border-radius:6px;color:#ffd7d7}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .rowcenter{display:flex;align-items:center;gap:8px}
+  .workspace-row{display:flex;gap:8px;align-items:flex-start}
+  .block-config{display:none;padding:8px;margin-top:8px;background:rgba(255,255,255,0.01);border-radius:6px}
+  .badge{background:#06243b;padding:4px 8px;border-radius:999px;color:#9ad0ff;font-size:12px}
+  .pill{display:inline-block;padding:3px 6px;border-radius:6px;background:rgba(255,255,255,0.02);font-size:12px}
+  .flex-gap{display:flex;gap:8px}
+  .seq-list{max-height:260px;overflow:auto}
+  .title{font-weight:700;color:#9ad0ff;margin-bottom:6px}
+  .help{font-size:12px;color:var(--muted);margin-top:6px}
+  .img-preview{width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid rgba(255,255,255,0.04)}
+  .notice{font-size:12px;color:#ffd7a8}
+  @media (max-width:980px){ .container{grid-template-columns:1fr; } #workspace.horizontal .wblock{min-width:220px} }
+</style>
 </head>
 <body>
-
 <header>
-  <div>
-    <h1>.,/?(~^= Group Tools — API Execute =^~)?\,. </h1>
-    <div class="sub">Tab2 = rawAPI</div>
-  </div>
-  <div class="small">by まろんくん(ry.pv)</div>
+  <div>
+    <h1>.,/?(~^=  Group Tools — API Execute  =^~)?\,. </h1>
+    <div class="sub">Tab2 = rawAPI（APIを直接叩く）</div>
+  </div>
+  <div class="small">by まろんくん(ry.pv)</div>
 </header>
 
 <div class="container">
-  <div class="card" id="sidePanel"></div>
-  <div class="card" id="mainPanel"></div>
+  <div class="card">
+    <div class="title">Tokens</div>
+    <label>Label</label>
+    <input id="tokenLabel" type="text" placeholder="label" />
+    <label>Token</label>
+    <input id="tokenValue" type="password" placeholder="user token" />
+    <div class="controls">
+      <button id="saveToken" class="small">保存</button>
+      <button id="clearTokens" class="small danger">全部削除</button>
+    </div>
+    <div class="muted" style="margin-top:8px">保存済トークン</div>
+    <div id="tokenList" class="list"></div>
+
+    <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+    <div class="title">Icon / Image</div>
+    <div class="muted">テンプレート用のアイコン（base64として保存）</div>
+    <label>画像アップロード</label>
+    <input id="iconFile" type="file" accept="image/*" />
+    <div class="row" style="margin-top:8px">
+      <img id="iconPreview" class="img-preview" alt="" />
+      <div style="flex:1">
+        <div class="small" id="iconInfo">No icon</div>
+        <div style="margin-top:8px" class="controls">
+          <button id="removeIcon" class="small ghost">削除</button>
+        </div>
+      </div>
+    </div>
+
+    <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+    <div class="title">Group Templates</div>
+    <label>設定 Label</label>
+    <input id="gLabel" type="text" placeholder="group-1" />
+    <label>Group 名（表示名）</label>
+    <input id="gName" type="text" placeholder="groupname" />
+    <label>ユーザーID（カンマ区切り）</label>
+    <input id="gUsers" type="text" placeholder="123,456,789" />
+    <label>作成数</label>
+    <input id="gCount" type="text" placeholder="1" />
+    <div class="controls" style="margin-top:8px">
+      <button id="saveGroup" class="small">保存</button>
+      <button id="refreshGroups" class="small ghost">一覧更新</button>
+    </div>
+    <div id="groupList" class="list" style="margin-top:8px"></div>
+
+    <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+    <div class="title">Saved Sequences</div>
+    <div class="controls">
+      <input id="seqName" type="text" placeholder="Sequence name" />
+      <button id="saveSeq" class="small">保存</button>
+    </div>
+    <div id="seqList" class="seq-list list"></div>
+    <div class="help">Sequence は localStorage に保存されます。</div>
+    <div style="margin-top:10px" class="controls">
+      <button id="exportAll" class="small">全設定エクスポート</button>
+      <button id="importAll" class="small ghost">全設定インポート</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between;align-items:center;">
+      <div>
+        <button id="tabExec" class="small ok">Execute</button>
+        <button id="tabScratch" class="small ghost">rawAPI</button>
+      </div>
+      <div class="rowcenter">
+        <span class="pill">Select token:</span>
+        <select id="selectToken"><option value="">--選択--</option></select>
+      </div>
+    </div>
+
+    <div id="viewExec" style="margin-top:12px;">
+      <div class="grid2">
+        <div>
+          <div class="title">Quick Create from Template</div>
+          <label>テンプレ Label を選択</label>
+          <select id="tplSelect"><option value="">--選択--</option></select>
+          <div class="controls" style="margin-top:8px">
+            <button id="applyTpl" class="small">利用</button>
+            <button id="openScratch" class="small ghost">Open rawAPI</button>
+          </div>
+          <div class="muted" style="margin-top:8px">テンプレを選択して「利用」を押すと下の実行フォームが自動入力されます。</div>
+        </div>
+        <div>
+          <div class="title">Execution Controls</div>
+          <label><input type="checkbox" id="consentExec" /> 実行リスクを理解しました</label>
+          <div class="controls" style="margin-top:8px">
+            <button id="btnExec" class="ok small">実行 (Execute)</button>
+            <button id="btnStop" class="danger small" style="display:none">停止</button>
+            <button id="btnGen" class="ghost small">curl/fetch 生成</button>
+          </div>
+        </div>
+      </div>
+
+      <hr style="margin:10px 0;border:none;border-top:1px solid rgba(255,255,255,0.03)">
+
+      <div>
+        <div class="title">Create Parameters</div>
+        <label>Recipients (カンマ区切り)</label>
+        <input id="exec_recipients" type="text" />
+        <label>Optional name</label>
+        <input id="exec_name" type="text" />
+        <label>Count</label>
+        <input id="exec_count" type="text" value="1" />
+      </div>
+
+      <div style="margin-top:10px">
+        <div class="title">Log / Response</div>
+        <pre id="execLog">—</pre>
+      </div>
+    </div>
+
+    <div id="viewScratch" style="margin-top:12px; display:none;">
+      <div class="title">Workspace</div>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:240px">
+          <div class="title">Palette</div>
+          <div class="muted">ブロックをドラッグ or ダブルクリックで追加</div>
+          <div class="palette" id="palette" style="margin-top:8px">
+            <div class="block" draggable="true" data-type="api">API Call</div>
+            <div class="block" draggable="true" data-type="wait">Wait</div>
+            <div class="block" draggable="true" data-type="loop">Loop</div>
+            <div class="block" draggable="true" data-type="cond">If Status ==</div>
+            <div class="block" draggable="true" data-type="comment">Comment</div>
+          </div>
+          <div class="controls" style="margin-top:8px">
+            <button id="runSeq" class="ok small">実行</button>
+            <button id="clearWorkspace" class="ghost small">クリア</button>
+            <button id="exportSeq" class="small">エクスポート</button>
+            <button id="importSeq" class="small ghost">インポート</button>
+          </div>
+          <div style="margin-top:8px">
+            <button id="toggleLayout" class="small ghost">横表示に切替 (Toggle Horizontal)</button>
+            <div class="notice" id="layoutNotice">現在：縦表示</div>
+          </div>
+        </div>
+
+        <div style="flex:1">
+          <div id="workspace" ondragover="event.preventDefault()"></div>
+          <div class="title" style="margin-top:10px">Sequence Preview</div>
+          <pre id="seqPreview">[]</pre>
+        </div>
+
+        <div style="width:320px">
+          <div class="title">Selected Block</div>
+          <div id="blockConfig" class="block-config">選択したブロックのプロパティを編集できます</div>
+
+          <div class="title" style="margin-top:12px">rawAPI Log</div>
+          <pre id="scratchLog">—</pre>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <footer>Local only — tokens, templates & sequences saved to localStorage</footer>
 
-<script src="./storage.js" defer></script>
-<script src="./ui-common.js" defer></script>
-<script src="./tokens.js" defer></script>
-<script src="./templates.js" defer></script>
-<script src="./sequences.js" defer></script>
-<script src="./executor.js" defer></script>
-
+<script>
+const STORAGE_KEY = 'selfhub_rawapi_v1';
+function loadDB(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {tokens:{}, templates:{}, sequences:{}, icon:null}; }catch(e){ return {tokens:{}, templates:{}, sequences:{}, icon:null}; }}
+function saveDB(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){} refreshTokenUI(); refreshTplUI(); refreshSeqList(); }
+let DB = loadDB();
+const $ = id => document.getElementById(id);
+function logLineExec(s){ const el = $('execLog'); el.textContent = (el.textContent === '—' ? '' : el.textContent) + '['+new Date().toLocaleTimeString()+'] ' + s + '\n'; el.scrollTop = el.scrollHeight; }
+function logLineScratch(s){ const el = $('scratchLog'); el.textContent = (el.textContent === '—' ? '' : el.textContent) + '['+new Date().toLocaleTimeString()+'] ' + s + '\n'; el.scrollTop = el.scrollHeight; }
+function appendLog(s){ logLineExec(s); if($('viewScratch').style.display !== 'none') logLineScratch(s); }
+$('iconFile').addEventListener('change', (e)=>{ const f = e.target.files[0]; if(!f) return; const r = new FileReader(); r.onload = ()=>{ DB.icon = r.result; saveDB(); $('iconPreview').src = DB.icon; $('iconInfo').textContent = 'Icon loaded'; appendLog('Icon saved'); }; r.readAsDataURL(f); });
+$('removeIcon').addEventListener('click', ()=>{ DB.icon = null; saveDB(); $('iconPreview').src=''; $('iconInfo').textContent='No icon'; });
+function refreshTokenUI(){ const list = $('tokenList'); list.innerHTML=''; const sel = $('selectToken'); sel.innerHTML='<option value="">--選択--</option>'; Object.entries(DB.tokens||{}).forEach(([id,t])=>{ const div = document.createElement('div'); div.className='item'; div.innerHTML = `<div><strong>${escapeHtml(t.label||id)}</strong><div class="small">••••${t.token?t.token.slice(-6):'(empty)'}</div></div><div style="display:flex;gap:6px"><button data-id="${id}" class="useBtn small">選択</button><button data-id="${id}" class="delBtn small danger">削除</button></div>`; list.appendChild(div); const opt = document.createElement('option'); opt.value = id; opt.textContent = t.label||id; sel.appendChild(opt); }); Array.from(document.getElementsByClassName('useBtn')).forEach(b=> b.onclick = ()=> $('selectToken').value = b.dataset.id ); Array.from(document.getElementsByClassName('delBtn')).forEach(b=> b.onclick = ()=> { if(confirm('削除しますか？')){ delete DB.tokens[b.dataset.id]; saveDB(); refreshTokenUI(); } }); }
+$('saveToken').onclick = ()=>{ const lbl = $('tokenLabel').value.trim(); const tok = $('tokenValue').value.trim(); if(!lbl||!tok){ alert('label と token を入力'); return; } const id = 't_'+Date.now(); DB.tokens = DB.tokens || {}; DB.tokens[id] = {label:lbl, token:tok}; saveDB(); refreshTokenUI(); $('tokenLabel').value=''; $('tokenValue').value=''; };
+$('clearTokens').onclick = ()=>{ if(confirm('トークンをすべて削除しますか？')){ DB.tokens={}; saveDB(); refreshTokenUI(); } };
+function refreshTplUI(){ const out = $('groupList'); out.innerHTML=''; const sel = $('tplSelect'); sel.innerHTML = '<option value="">--選択--</option>'; Object.entries(DB.templates||{}).forEach(([id,t])=>{ const div = document.createElement('div'); div.className='item'; div.innerHTML = `<div style="display:flex;gap:8px;align-items:center">${t.icon? `<img src="${t.icon}" class="img-preview" />` : `<div class="img-preview" style="background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center;color:#7fa3c7">no</div>`}<div><strong>${escapeHtml(t.label||id)}</strong><div class="small">${escapeHtml(t.name||'')} → ${escapeHtml((t.users||[]).join(','))}</div></div></div><div style="display:flex;gap:6px"><button data-id="${id}" class="useTpl small">利用</button><button data-id="${id}" class="fillTpl small ghost">Fill</button><button data-id="${id}" class="delTpl small danger">削除</button></div>`; out.appendChild(div); const opt = document.createElement('option'); opt.value = id; opt.textContent = t.label; sel.appendChild(opt); }); Array.from(document.getElementsByClassName('useTpl')).forEach(b=> b.onclick = ()=> applyTemplateToExec(b.dataset.id) ); Array.from(document.getElementsByClassName('fillTpl')).forEach(b=> b.onclick = ()=> fillTplForm(b.dataset.id) ); Array.from(document.getElementsByClassName('delTpl')).forEach(b=> b.onclick = ()=> { if(confirm('削除しますか？')){ delete DB.templates[b.dataset.id]; saveDB(); refreshTplUI(); } }); }
+$('saveGroup').onclick = ()=>{ const lbl = $('gLabel').value.trim(); const name = $('gName').value.trim(); const users = $('gUsers').value.split(',').map(s=>s.trim()).filter(Boolean); const count = parseInt($('gCount').value)||1; if(!lbl||users.length<2){ alert('Label と user を(2人以上)入力'); return; } const id = 'tpl_'+Date.now(); DB.templates = DB.templates || {}; DB.templates[id] = {label:lbl, name:name, users:users, count:count, icon: DB.icon || null}; saveDB(); refreshTplUI(); $('gLabel').value=''; $('gName').value=''; $('gUsers').value=''; $('gCount').value='1'; };
+$('refreshGroups').onclick = refreshTplUI;
+$('applyTpl').onclick = ()=> applyTemplateToExec($('tplSelect').value);
+function applyTemplateToExec(id){ const t = DB.templates[id]; if(!t) return; $('exec_recipients').value = (t.users||[]).join(','); $('exec_name').value = t.name||''; $('exec_count').value = t.count||1; if(t.icon){ DB.icon = t.icon; saveDB(); $('iconPreview').src = DB.icon; $('iconInfo').textContent='Icon loaded'; } alert('テンプレ適用されました'); }
+function fillTplForm(id){ const t = DB.templates[id]; if(!t) return; $('gLabel').value = t.label||''; $('gName').value = t.name||''; $('gUsers').value = (t.users||[]).join(','); $('gCount').value = t.count||1; }
+function refreshSeqList(){ const out = $('seqList'); out.innerHTML=''; Object.entries(DB.sequences||{}).forEach(([id,s])=>{ const div = document.createElement('div'); div.className='item'; div.innerHTML = `<div><strong>${escapeHtml(s.name||id)}</strong><div class="small">${(s.blocks||[]).length} blocks</div></div><div style="display:flex;gap:6px"><button data-id="${id}" class="useSeq small">読み込み</button><button data-id="${id}" class="runSeqNow small ghost">実行</button><button data-id="${id}" class="delSeq small danger">削除</button></div>`; out.appendChild(div); }); Array.from(document.getElementsByClassName('useSeq')).forEach(b=> b.onclick = ()=> loadSequenceIntoWorkspace(b.dataset.id) ); Array.from(document.getElementsByClassName('runSeqNow')).forEach(b=> b.onclick = ()=> { loadSequenceIntoWorkspace(b.dataset.id); setTimeout(()=> $('runSeq').click(), 120); } ); Array.from(document.getElementsByClassName('delSeq')).forEach(b=> b.onclick = ()=> { if(confirm('削除しますか？')){ delete DB.sequences[b.dataset.id]; saveDB(); refreshSeqList(); } }); }
+$('saveSeq').onclick = ()=>{ const name = $('seqName').value.trim(); if(!name){ alert('Sequence name を入力してください'); return; } const data = workspaceToSequence(); if(data.length === 0){ alert('ブロックがありません'); return; } const id = 'seq_'+Date.now(); DB.sequences = DB.sequences || {}; DB.sequences[id] = {name:name, blocks:data}; saveDB(); refreshSeqList(); $('seqName').value=''; alert('保存しました'); };
+const workspace = $('workspace');
+let blockCounter = 0;
+function defaultBlockForType(type){ if(type==='api') return {type:'api', props:{method:'GET', path:'/users/@me', body:null, headers:{}}}; if(type==='wait') return {type:'wait', props:{sec:1}}; if(type==='loop') return {type:'loop', props:{count:2, blocks:[]}}; if(type==='cond') return {type:'cond', props:{code:200, blocks:[]}}; if(type==='comment') return {type:'comment', props:{text:'note'}}; return {type:type, props:{}}; }
+function summaryForBlock(obj){ if(!obj) return ''; if(obj.type==='api') return `${obj.props.method||'GET'} ${obj.props.path||'/users/@me'}`; if(obj.type==='wait') return `wait ${obj.props.sec||1}s`; if(obj.type==='loop') return `loop ${obj.props.count||1}x`; if(obj.type==='cond') return `if status == ${obj.props.code||200}`; if(obj.type==='comment') return obj.props.text||''; return ''; }
+function makeWBlock(obj){ const id = 'b_'+(++blockCounter); obj._id = id; const el = document.createElement('div'); el.className='wblock'; el.draggable = true; el.dataset.id = id; el.innerHTML = `<div><div class="meta">${escapeHtml(obj.type.toUpperCase())}${obj.type==='api'? ' - '+escapeHtml(obj.props.method||'GET')+' '+escapeHtml(obj.props.path||'/users/@me'):''}</div><div class="small">${escapeHtml(summaryForBlock(obj))}</div></div><div class="btns"><button class="small ghost editBtn">✎</button><button class="small ghost upBtn">▲</button><button class="small ghost downBtn">▼</button><button class="small danger delBtn">✖</button></div>`; el._data = obj; el.addEventListener('dragstart', (e)=>{ el.classList.add('dragging'); e.dataTransfer.setData('text/plain', 'workspace:'+id); }); el.addEventListener('dragend', ()=>{ el.classList.remove('dragging'); }); el.addEventListener('click', (e)=> { e.stopPropagation(); selectBlock(el); } ); el.querySelector('.editBtn').onclick = (ev)=>{ ev.stopPropagation(); openBlockConfig(el); }; el.querySelector('.delBtn').onclick = (ev)=>{ ev.stopPropagation(); if(confirm('削除しますか？')){ el.remove(); refreshSeqPreview(); } }; el.querySelector('.upBtn').onclick = (ev)=>{ ev.stopPropagation(); const p = el.previousElementSibling; if(p) el.parentNode.insertBefore(el, p); refreshSeqPreview(); }; el.querySelector('.downBtn').onclick = (ev)=>{ ev.stopPropagation(); const n = el.nextElementSibling; if(n) el.parentNode.insertBefore(n, el); refreshSeqPreview(); }; return el; }
+Array.from(document.getElementsByClassName('block')).forEach((b, idx)=>{ const t = b.dataset.type || ['api','wait','loop','cond','comment'][idx]; b.dataset.type = t; b.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/plain', 'palette:'+t); b.classList.add('dragging'); }); b.addEventListener('dragend', ()=> b.classList.remove('dragging')); b.addEventListener('dblclick', ()=> { const el = makeWBlock(defaultBlockForType(t)); workspace.appendChild(el); refreshSeqPreview(); openBlockConfig(el); }); });
+workspace.addEventListener('drop', (e)=>{ e.preventDefault(); const d = e.dataTransfer.getData('text/plain'); const afterElement = getDragAfterElement(workspace, e.clientX, e.clientY); if(!d) return; if(d.startsWith('palette:')){ const type = d.split(':')[1]; const obj = defaultBlockForType(type); const w = makeWBlock(obj); if(afterElement) workspace.insertBefore(w, afterElement); else workspace.appendChild(w); openBlockConfig(w); refreshSeqPreview(); } else if(d.startsWith('workspace:')){ const id = d.split(':')[1]; const draggedElement = document.querySelector(`.wblock[data-id="${id}"]`); if(draggedElement){ if(afterElement) workspace.insertBefore(draggedElement, afterElement); else workspace.appendChild(draggedElement); } refreshSeqPreview(); } });
+workspace.addEventListener('dragover', e=> e.preventDefault());
+function getDragAfterElement(container, x, y){ const draggableElements = [...container.querySelectorAll('.wblock:not(.dragging)')]; return draggableElements.reduce((closest, child)=>{ const rect = child.getBoundingClientRect(); const offset = container.classList.contains('horizontal') ? x - rect.left - rect.width/2 : y - rect.top - rect.height/2; if(offset < 0 && offset > closest.offset){ return {offset:offset, element:child}; }else{ return closest; } }, {offset: -Infinity}).element; }
+function selectBlock(el){ Array.from(workspace.children).forEach(c=> c.style.boxShadow='none'); el.style.boxShadow = '0 0 0 2px var(--accent)'; openBlockConfig(el); }
+function openBlockConfig(el){ const cfg = $('blockConfig'); cfg.style.display = 'block'; cfg.innerHTML = ''; const obj = el._data; if(obj.type==='api'){ cfg.innerHTML = `<label>Method</label><input id="cfg_method" type="text" value="${escapeHtml(obj.props.method||'GET')}" /><label>Path</label><input id="cfg_path" type="text" value="${escapeHtml(obj.props.path||'/users/@me')}" /><label>Body (JSON)</label><textarea id="cfg_body">${obj.props.body?escapeHtml(JSON.stringify(obj.props.body,null,2)):''}</textarea><label>Headers (JSON)</label><textarea id="cfg_headers">${obj.props.headers?escapeHtml(JSON.stringify(obj.props.headers,null,2)):''}</textarea><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='wait'){ cfg.innerHTML = `<label>Seconds</label><input id="cfg_sec" type="text" value="${escapeHtml(String(obj.props.sec||1))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='loop'){ cfg.innerHTML = `<label>Count</label><input id="cfg_count" type="text" value="${escapeHtml(String(obj.props.count||1))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='cond'){ cfg.innerHTML = `<label>Status code</label><input id="cfg_code" type="text" value="${escapeHtml(String(obj.props.code||200))}" /><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } else if(obj.type==='comment'){ cfg.innerHTML = `<label>Text</label><textarea id="cfg_text">${escapeHtml(obj.props.text||'')}</textarea><div class="controls"><button id="cfgSave" class="small ok">保存</button></div>`; } $('cfgSave').onclick = ()=>{ try{ if(obj.type==='api'){ const btxt = $('cfg_body').value.trim(); obj.props.body = btxt? JSON.parse(btxt) : null; const htxt = $('cfg_headers').value.trim(); obj.props.headers = htxt? JSON.parse(htxt) : {}; obj.props.method = $('cfg_method').value.trim().toUpperCase()||'GET'; obj.props.path = $('cfg_path').value.trim()||'/users/@me'; } else if(obj.type==='wait'){ obj.props.sec = Number($('cfg_sec').value)||1; } else if(obj.type==='loop'){ obj.props.count = Number($('cfg_count').value)||1; } else if(obj.type==='cond'){ obj.props.code = Number($('cfg_code').value)||200; } else if(obj.type==='comment'){ obj.props.text = $('cfg_text').value||''; } }catch(e){ alert('JSON parse error'); return; } el.querySelector('.meta').textContent = obj.type.toUpperCase() + (obj.type==='api'? ' - '+obj.props.method+' '+obj.props.path : ''); el.querySelector('.small').textContent = summaryForBlock(obj); refreshSeqPreview(); cfg.style.display = 'none'; }; }
+function workspaceToSequence(){ return Array.from(workspace.children).map(c=> c._data ? JSON.parse(JSON.stringify(c._data)) : null).filter(Boolean); }
+function loadSequenceObjectToWorkspace(blocks){ workspace.innerHTML=''; blockCounter=0; if(!Array.isArray(blocks)) return; for(const b of blocks){ const el = makeWBlock(b); workspace.appendChild(el); } refreshSeqPreview(); }
+function loadSequenceIntoWorkspace(id){ const s = DB.sequences[id]; if(!s){ alert('sequence not found'); return; } loadSequenceObjectToWorkspace(s.blocks||[]); }
+function refreshSeqPreview(){ $('seqPreview').textContent = JSON.stringify(workspaceToSequence(), null, 2); }
+$('clearWorkspace').onclick = ()=>{ if(confirm('ワークスペースをクリアしますか？')){ loadSequenceObjectToWorkspace([]); } };
+let runStopFlag = false;
+$('btnStop').onclick = ()=>{ runStopFlag = true; $('btnStop').style.display='none'; appendLog('停止リクエストを受け取りました'); };
+function sleepMs(ms){ return new Promise(r=>setTimeout(r, ms)); }
+async function fetchWithRetry(url, opts){ while(true){ if(runStopFlag) throw new Error('Stopped by user'); const res = await fetch(url, opts); if(res.status !== 429) return res; let retry = 1; try{ const j = await res.json().catch(()=>null); retry = j && j.retry_after ? j.retry_after : (parseFloat(res.headers.get('Retry-After')) || 1); }catch(e){} appendLog(`429 レート制限: ${retry}s 待機`); let left = Math.ceil(retry); while(left>0){ if(runStopFlag) throw new Error('Stopped by user'); await sleepMs(1000); left--; } } }
+async function runSequence(arr,token){window._scratch_last_status=0;for(let i=0;i<arr.length;i++){if(runStopFlag){appendLog('実行中止');return;}const b=arr[i];appendLog(`-> [${i+1}/${arr.length}] ${b.type} ${summaryForBlock(b)}`);if(b.type==='comment'){if(b.props&&b.props.text)appendLog(`COMMENT: ${b.props.text}`);continue;}if(b.type==='wait'){const t=Number(b.props&&b.props.sec)||1;appendLog(`WAIT ${t}s`);await sleepMs(t*1000);continue;}if(b.type==='loop'){const cnt=Number(b.props&&b.props.count)||1;const next=arr[i+1];if(!next){appendLog('LOOP: no next block');continue;}appendLog(`LOOP x${cnt} -> ${summaryForBlock(next)}`);for(let k=0;k<cnt;k++){if(runStopFlag)return;await runSequence([next],token);}i++;continue;}if(b.type==='cond'){const code=Number(b.props&&b.props.code)||200;const last=window._scratch_last_status||0;appendLog(`COND check lastStatus=${last} == ${code}`);if(last===code&&Array.isArray(b.props.blocks))await runSequence(b.props.blocks,token);else appendLog('COND skipped');continue;}if(b.type==='api'){const method=(b.props.method||'GET').toUpperCase();const path=b.props.path||'/users/@me';const body=b.props.body!==undefined?b.props.body:null;const headers=Object.assign({},b.props.headers||{});const opts={method,headers:Object.assign({'Authorization':token,'Content-Type':'application/json'},headers)};if(body!==null&&['POST','PATCH','PUT','DELETE'].includes(method))opts.body=JSON.stringify(body);const url='https://discord.com/api/v9'+path;appendLog(`API ${method} ${path}`);try{const res=await fetchWithRetry(url,opts);const txt=await res.text().catch(()=>null);window._scratch_last_status=res.status;appendLog(`[API res] ${res.status} ${txt?(txt.length>400?txt.slice(0,400)+'...':txt):''}`);}catch(e){appendLog('API ERROR: '+e.message);}continue;}appendLog('Unknown block type: '+b.type);}}
+$('btnExec').onclick = async ()=>{ if(!$('consentExec').checked){ alert('実行前に同意してください'); return; } const sel = $('selectToken').value; if(!sel){ alert('Token を選択してください'); return; } const token = DB.tokens[sel].token; const rec = $('exec_recipients').value.split(',').map(s=>s.trim()).filter(Boolean); if(rec.length < 2){ alert('Recipients は2人以上必要です'); return; } const name = $('exec_name').value.trim(); const count = Number($('exec_count').value) || 1; runStopFlag = false; $('btnStop').style.display='inline-block'; appendLog('開始: Create Group x'+count); for(let i=0;i<count;i++){ if(runStopFlag) break; try{ const res = await fetchWithRetry('https://discord.com/api/v9/users/@me/channels', { method:'POST', headers:{'Authorization':token,'Content-Type':'application/json'}, body: JSON.stringify({recipients:rec}) }); const jtxt = await res.text().catch(()=>null); appendLog(`[Create ${i+1}] ${res.status} ${jtxt? (jtxt.length>400? jtxt.slice(0,400)+'...': jtxt):''}`); window._scratch_last_status = res.status; if(res.ok && name){ let j = null; try{ j = JSON.parse(jtxt); }catch(e){} if(j && j.id){ const cid = j.id; const patchBody = {name: name + (count>1 ? `_${i+1}` : '')}; if(DB.icon) patchBody.icon = DB.icon; const pres = await fetchWithRetry('https://discord.com/api/v9/channels/'+cid, { method:'PATCH', headers:{'Authorization':token,'Content-Type':'application/json'}, body: JSON.stringify(patchBody) }); const ptxt = await pres.text().catch(()=>null); appendLog(`[PATCH ${cid}] ${pres.status} ${ptxt?ptxt.slice(0,400):''}`); window._scratch_last_status = pres.status; } else appendLog('channel id が返らず name を PATCH できませんでした'); } }catch(e){ appendLog('ERROR create: '+e.message); } } $('btnStop').style.display='none'; runStopFlag = false; appendLog('完了'); };
+$('runSeq').onclick = async ()=>{ const sel = $('selectToken').value; if(!sel){ alert('Token を選択してください'); return; } if(!confirm('Sequence を実行しますか？（自己責任）')) return; const token = DB.tokens[sel].token; runStopFlag = false; $('btnStop').style.display='inline-block'; try{ const seq = workspaceToSequence(); await runSequence(seq, token); }catch(e){ appendLog('実行中断: '+(e && e.message ? e.message : String(e))); } $('btnStop').style.display='none'; runStopFlag=false; appendLog('Sequence 実行終了'); };
+$('tabExec').onclick = ()=>{ $('viewExec').style.display='block'; $('viewScratch').style.display='none'; $('tabExec').classList.add('ok'); $('tabExec').classList.remove('ghost'); $('tabScratch').classList.remove('ok'); $('tabScratch').classList.add('ghost'); $('palette').style.display = 'none'; workspace.style.display='none'; workspace.classList.remove('horizontal'); updateLayoutNotice(); };
+$('tabScratch').onclick = ()=>{ $('viewExec').style.display='none'; $('viewScratch').style.display='block'; $('tabExec').classList.remove('ok'); $('tabExec').classList.add('ghost'); $('tabScratch').classList.add('ok'); $('tabScratch').classList.remove('ghost'); $('palette').style.display = 'grid'; workspace.style.display='flex'; workspace.classList.remove('horizontal'); updateLayoutNotice(); if($('scratchLog').textContent === '—') $('scratchLog').textContent = ''; };
+$('openScratch').onclick = ()=>{ $('tabScratch').click(); };
+$('toggleLayout').onclick = ()=>{ workspace.classList.toggle('horizontal'); updateLayoutNotice(); };
+function updateLayoutNotice(){ const notice = $('layoutNotice'); if(workspace.classList.contains('horizontal')) notice.textContent = '現在：横表示'; else notice.textContent = '現在：縦表示'; }
+$('exportSeq').onclick = ()=>{ const data = workspaceToSequence(); const text = JSON.stringify({exported:Date.now(), blocks:data}, null, 2); const blob = new Blob([text], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'sequence.json'; a.click(); URL.revokeObjectURL(url); };
+$('importSeq').onclick = ()=>{ const f = document.createElement('input'); f.type='file'; f.accept='application/json'; f.onchange = ()=> { const file = f.files[0]; if(!file) return; const r = new FileReader(); r.onload = ()=> { try{ const j = JSON.parse(r.result); if(j.blocks && Array.isArray(j.blocks)) { loadSequenceObjectToWorkspace(j.blocks); alert('読み込み完了'); } else alert('不正なファイル'); }catch(e){ alert('読み込みエラー'); } }; r.readAsText(file); }; f.click(); };
+$('exportAll').onclick = ()=>{ const text = JSON.stringify({exported:Date.now(), db:DB}, null, 2); const blob = new Blob([text], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'gtools_full_export.json'; a.click(); URL.revokeObjectURL(url); };
+$('importAll').onclick = ()=>{ const f = document.createElement('input'); f.type='file'; f.accept='application/json'; f.onchange = ()=> { const file = f.files[0]; if(!file) return; const r = new FileReader(); r.onload = ()=> { try{ const j = JSON.parse(r.result); if(j.db){ DB = j.db; saveDB(); alert('全設定の読み込みが完了しました'); } else alert('不正なファイル'); }catch(e){ alert('読み込みエラー'); } }; r.readAsText(file); }; f.click(); };
+$('btnGen').onclick = ()=>{ const sel = $('selectToken').value; if(!sel){ alert('Token を選択してください'); return; } const token = DB.tokens[sel].token; const rec = $('exec_recipients').value.split(',').map(s=>s.trim()).filter(Boolean); if(rec.length < 2){ alert('Recipients は2人以上必要です'); return; } const jsonBody = JSON.stringify({recipients:rec}, null, 2); const curl = `curl -X POST "https://discord.com/api/v9/users/@me/channels" \\\n-H "Authorization: ${token}" \\\n-H "Content-Type: application/json" \\\n-d '${jsonBody.replace(/'/g, "\\'")}'`; const fetchCode = `fetch('https://discord.com/api/v9/users/@me/channels', {\n  method: 'POST',\n  headers: {\n    'Authorization': '${token}',\n    'Content-Type': 'application/json'\n  },\n  body: JSON.stringify({recipients: ${JSON.stringify(rec)}})\n})`; $('execLog').textContent = `[curl]\n${curl}\n\n[fetch]\n${fetchCode}`; };
+function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function loadInitial(){ if(DB.icon){ $('iconPreview').src = DB.icon; $('iconInfo').textContent = 'Icon loaded'; } else { $('iconPreview').src = ''; $('iconInfo').textContent = 'No icon'; } refreshTokenUI(); refreshTplUI(); refreshSeqList(); if($('viewScratch').style.display !== 'none'){ $('palette').style.display = 'grid'; workspace.style.display='flex'; } else { $('palette').style.display = 'none'; workspace.style.display='none'; } updateLayoutNotice(); }
+window.onload = loadInitial;
+</script>
 </body>
 </html>
