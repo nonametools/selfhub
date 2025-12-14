@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Group Tools — API Execute (Canvas)</title>
+<title>Group Tools — API Execute (Optimized 3-Column)</title>
 <style>
 /* ------------------------------------------------ */
-/* 🌙 Dark Theme v4 (Horizontal Flow Layout) */
+/* 🌙 Dark Theme v5 (Optimized 3-Column Layout) */
 /* ------------------------------------------------ */
 :root{
   --bg: #071224;            /* Main Dark Background */
@@ -22,19 +22,67 @@
   --block-contrast: #16324b;/* Workspace Block Background (Higher Contrast) */
   --border: rgba(255,255,255,0.05); /* Border/Divider */
 }
-html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text-primary)}
-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border);background:var(--card)}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text-primary);overflow-y:hidden;} /* bodyの縦スクロールを抑制 */
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--card);flex-shrink:0}
 h1{margin:0;font-size:18px;color:var(--accent-light)}
 .sub{font-size:12px;color:var(--muted)}
-/* 全体コンテナ: 左カラム300px、右カラム（メイン）を広く */
-.container{max-width:1400px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:300px 1fr;gap:24px}
-.card{background:var(--card);padding:16px;border-radius:12px;border:1px solid var(--border);box-shadow:0 6px 24px rgba(0,0,0,0.6)}
-label{display:block;font-size:13px;color:var(--accent-light);font-weight:600;margin-top:12px}
-input[type=text], input[type=password], textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text-primary);box-sizing:border-box;transition:border-color 0.2s}
+
+/* 全体コンテナ: 3カラム (左:280, 中央:1fr, 右:320) */
+.main-layout{
+  display: flex;
+  height: calc(100vh - 58px); /* ヘッダーの高さを引く */
+  padding: 16px;
+  gap: 16px;
+  overflow: hidden; /* 縦スクロールは各カード内で行う */
+}
+.col-tokens {
+    width: 280px;
+    flex-shrink: 0;
+}
+.col-main {
+    flex-grow: 1; /* 中央を最も広く */
+    min-width: 450px;
+    display: flex; /* Tabs内でのレイアウト用 */
+    flex-direction: column;
+}
+.col-sequences {
+    width: 320px;
+    flex-shrink: 0;
+}
+
+/* カードスタイルとスクロール */
+.card{
+    background:var(--card);
+    padding:16px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    box-shadow:0 6px 24px rgba(0,0,0,0.6);
+    overflow-y: auto; /* カード内でスクロール */
+    height: 100%; /* 親要素(カラム)いっぱいに広げる */
+    box-sizing: border-box;
+}
+.card-top {
+    overflow-y: hidden;
+    height: auto;
+}
+.card-scrollable {
+    overflow-y: auto;
+    height: 100%;
+}
+/* トークン/グループリストの高さ調整 */
+.list, .seq-list{
+    max-height: 150px; /* カードの高さに合わせて調整 */
+    overflow-y: auto;
+    margin-top:8px;border-radius:8px;
+}
+
+/* フォームと部品の基本スタイル (変更なし) */
+label{display:block;font-size:13px;color:var(--accent-light);font-weight:600;margin-top:10px}
+input[type=text], input[type=password], textarea, select{width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:rgba(255,255,255,0.03);color:var(--text-primary);box-sizing:border-box;transition:border-color 0.2s;font-size:14px}
 input:focus, textarea:focus, select:focus {outline:none;border-color:var(--accent);background:var(--block-contrast)}
-textarea{min-height:84px;resize:vertical}
+textarea{min-height:60px;resize:vertical}
 .row{display:flex;gap:8px;align-items:center}
-button{padding:10px 14px;border-radius:8px;border:none;background:var(--accent);color:white;cursor:pointer;font-weight:600;transition:background 0.2s}
+button{padding:8px 12px;border-radius:6px;border:none;background:var(--accent);color:white;cursor:pointer;font-weight:600;transition:background 0.2s}
 button:hover{background:var(--accent-dark)}
 button.ghost{background:transparent;border:1px solid var(--muted);color:var(--muted)}
 button.ghost:hover{background:var(--block-contrast);color:var(--accent-light);border-color:var(--accent)}
@@ -43,20 +91,54 @@ button.small{padding:6px 10px;font-size:13px}
 .danger:hover{background:#b82b2b}
 .ok{background:var(--ok)}
 .ok:hover{background:#238c46}
-.muted{color:var(--muted);font-size:13px}
-.list{max-height:200px;overflow:auto;margin-top:8px;border-radius:8px}
-.item{padding:10px;border-bottom:1px solid rgba(255,255,255,0.05);background:var(--card);display:flex;justify-content:space-between;align-items:center;transition:background 0.2s}
+.muted{color:var(--muted);font-size:12px}
+.item{padding:8px;border-bottom:1px solid rgba(255,255,255,0.05);background:var(--card);display:flex;justify-content:space-between;align-items:center;transition:background 0.2s}
 .item:hover{background:rgba(255,255,255,0.04)}
 .item:last-child{border-bottom:none}
 .item strong{color:var(--accent-light)}
-.small{font-size:12px;color:var(--muted)}
-pre{background:#031324;padding:12px;border-radius:8px;color:#cfefff;overflow:auto;max-height:360px;white-space:pre-wrap;border:1px solid var(--border);font-size:12px}
-footer{padding:16px;text-align:center;color:var(--muted);font-size:12px}
 .controls{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.palette{display:grid;grid-template-columns:1fr;gap:8px}
-.block{background:var(--block);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.05);cursor:grab;color:var(--text-primary);font-weight:600;transition:background 0.2s}
-.block:hover{background:rgba(255,255,255,0.08)}
-/* ワークスペースの設定 */
+.title{font-weight:700;color:var(--accent-light);margin-bottom:8px;font-size:15px}
+.pill{display:inline-block;padding:4px 8px;border-radius:8px;background:var(--block);font-size:13px;color:var(--text-primary);font-weight:600}
+
+/* Execute/Scratch Main Area - 中央カラムを分割 */
+#viewExec {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* 実行フォームとログを左右に分割 */
+    gap: 16px;
+    height: 100%;
+}
+#execForm{ overflow-y: auto; }
+#execLogContainer{
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+#execLogContainer .title{ margin-top:0; }
+pre{
+    background:#031324;padding:12px;border-radius:8px;color:#cfefff;overflow:auto;
+    white-space:pre-wrap;border:1px solid var(--border);font-size:12px;
+    flex-grow: 1; /* ログエリアを最大限に広げる */
+    min-height: 200px;
+}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* rawAPI View - 中央カラムにワークスペース、右カラムに設定・ログを移動 */
+#viewScratch > div {
+    display: flex;
+    gap: 16px;
+    height: 100%;
+}
+#viewScratch .col-left {
+    width: 180px; /* パレット・ボタン類 */
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+#viewScratch .col-center {
+    flex-grow: 1; /* ワークスペース */
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+}
 #workspace{
     min-height: 320px;
     border: 2px dashed var(--muted);
@@ -65,9 +147,10 @@ footer{padding:16px;text-align:center;color:var(--muted);font-size:12px}
     background: rgba(255,255,255,0.01);
     display: flex;
     gap: 10px;
-    overflow: auto; /* 縦横のオーバーフローを許可 */
+    overflow: auto; 
+    flex-grow: 1;
 }
-/* デフォルトを横長フローにする */
+/* レイアウトの切り替え */
 #workspace:not(.vertical) { 
     flex-direction: row;
     flex-wrap: nowrap;
@@ -75,7 +158,6 @@ footer{padding:16px;text-align:center;color:var(--muted);font-size:12px}
     overflow-y: hidden;
     align-items: flex-start;
 }
-/* 縦積み切り替え時の設定 */
 #workspace.vertical {
     flex-direction: column;
     flex-wrap: nowrap;
@@ -84,54 +166,47 @@ footer{padding:16px;text-align:center;color:var(--muted);font-size:12px}
     align-items: stretch;
 }
 .wblock{background:var(--block-contrast);padding:10px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;cursor:grab;min-width:260px;border:1px solid var(--border);box-shadow:0 0 0 0 transparent;transition:box-shadow 0.1s, background 0.2s}
-/* 横フロー時のブロック幅 */
 #workspace:not(.vertical) .wblock{min-width:300px;flex-shrink:0}
-/* 縦フロー時のブロック幅 */
 #workspace.vertical .wblock{margin-bottom:8px;}
-.wblock:hover{background:rgba(22, 50, 75, 0.8);}
-.wblock .meta{font-size:13px;font-weight:700;color:var(--accent-light)}
-.wblock .small{font-size:12px;color:var(--muted)}
-.wblock .btns{display:flex;gap:4px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.rowcenter{display:flex;align-items:center;gap:8px}
-.block-config{display:none;padding:12px;margin-top:10px;background:var(--block);border-radius:8px;border:2px solid var(--accent)}
-.badge{background:var(--accent-dark);padding:4px 8px;border-radius:999px;color:white;font-size:12px;font-weight:600}
-.pill{display:inline-block;padding:4px 8px;border-radius:8px;background:var(--block);font-size:13px;color:var(--text-primary);font-weight:600}
-.seq-list{max-height:260px;overflow:auto}
-.title{font-weight:700;color:var(--accent-light);margin-bottom:8px;font-size:15px}
-.help{font-size:12px;color:var(--muted);margin-top:8px}
-.img-preview{width:48px;height:48px;border-radius:8px;object-fit:cover;border:1px solid var(--border)}
-.notice{font-size:12px;color:#ffd7a8;font-weight:600;margin-top:4px}
-/* Layout adjustment for Scratch view (3-column) */
-#viewScratch > div {
+.block-config{display:none;padding:12px;margin-top:10px;background:var(--block);border-radius:8px;border:2px solid var(--accent);overflow-y:auto;max-height: calc(100vh - 300px);}
+
+/* 右カラムの内容 (Sequences/Logs) */
+.col-sequences .card {
     display: flex;
-    gap: 20px;
-    align-items: flex-start;
+    flex-direction: column;
 }
-#viewScratch .col-left {
-    width: 200px; /* パレット・ボタン類 */
+#seqListContainer {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+#scratchConfigLog {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+#scratchConfigLog .title { margin-top: 0; }
+#contextView { min-height: 50px; max-height: 100px; }
+#scratchLog { flex-grow: 1; min-height: 100px;}
+.config-container {
+    overflow-y: auto;
     flex-shrink: 0;
-}
-#viewScratch .col-right {
-    width: 320px; /* 設定・ログ類 */
-    flex-shrink: 0;
-}
-#viewScratch .col-center {
-    flex-grow: 1; /* ワークスペース */
 }
 
+
+/* レスポンシブデザイン（1200px未満で縦積み） */
 @media (max-width: 1200px){ 
-  .container{ grid-template-columns:1fr; gap: 16px; } 
-  #viewScratch > div { flex-direction: column; }
-  #viewScratch .col-left, #viewScratch .col-right { width: 100%; }
-  /* モバイル/タブレットサイズでは縦積みに戻す */
-  #workspace:not(.vertical) { 
+  .main-layout{ 
       flex-direction: column;
-      flex-wrap: nowrap;
-      overflow-x: hidden;
+      height: auto;
       overflow-y: auto;
-      align-items: stretch;
-  }
+  } 
+  .col-tokens, .col-main, .col-sequences { width: 100%; }
+  .card{ height: auto; min-height: 250px; }
+  #viewExec { grid-template-columns: 1fr; }
+  #viewScratch > div { flex-direction: column; }
+  #viewScratch .col-left { width: 100%; }
 }
 </style>
 </head>
@@ -139,173 +214,181 @@ footer{padding:16px;text-align:center;color:var(--muted);font-size:12px}
 <header>
   <div>
     <h1>.,/?(~^=  Group Tools — API Execute  =^~)?\,. </h1>
-    <div class="sub">Tab2 = rawAPI（APIを直接叩く）</div>
+    <div class="sub">縦スクロールなしで使えるように全体を最適化しました。</div>
   </div>
   <div class="small">by まろんくん(ry.pv)</div>
 </header>
 
-<div class="container">
-  <div class="card">
-    <div class="title">Tokens</div>
-    <label>Label</label>
-    <input id="tokenLabel" type="text" placeholder="label" />
-    <label>Token</label>
-    <input id="tokenValue" type="password" placeholder="user token" />
-    <div class="controls">
-      <button id="saveToken" class="small">保存</button>
-      <button id="clearTokens" class="small danger">全部削除</button>
-    </div>
-    <div class="muted" style="margin-top:12px">保存済トークン</div>
-    <div id="tokenList" class="list"></div>
-
-    <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
-
-    <div class="title">Icon / Image</div>
-    <div class="muted">テンプレート用のアイコン（base64として保存）</div>
-    <label>画像アップロード</label>
-    <input id="iconFile" type="file" accept="image/*" />
-    <div class="row" style="margin-top:12px">
-      <img id="iconPreview" class="img-preview" alt="" />
-      <div style="flex:1">
-        <div class="small" id="iconInfo">No icon</div>
-        <div style="margin-top:8px" class="controls">
-          <button id="removeIcon" class="small ghost">削除</button>
-        </div>
+<div class="main-layout">
+      <div class="col-tokens">
+    <div class="card">
+      <div class="title">Tokens</div>
+      <label>Label</label><input id="tokenLabel" type="text" placeholder="label" />
+      <label>Token</label><input id="tokenValue" type="password" placeholder="user token" />
+      <div class="controls">
+        <button id="saveToken" class="small">保存</button>
+        <button id="clearTokens" class="small danger">全部削除</button>
       </div>
-    </div>
-
-    <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
-
-    <div class="title">Group Templates</div>
-    <label>設定 Label</label>
-    <input id="gLabel" type="text" placeholder="group-1" />
-    <label>Group 名（表示名）</label>
-    <input id="gName" type="text" placeholder="groupname" />
-    <label>ユーザーID（カンマ区切り）</label>
-    <input id="gUsers" type="text" placeholder="123,456,789" />
-    <label>作成数</label>
-    <input id="gCount" type="text" value="1" />
-    <div class="controls" style="margin-top:8px">
-      <button id="saveGroup" class="small">保存</button>
-      <button id="refreshGroups" class="small ghost">一覧更新</button>
-    </div>
-    <div id="groupList" class="list" style="margin-top:8px"></div>
-
-    <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
-
-    <div class="title">Saved Sequences</div>
-    <div class="controls">
-      <input id="seqName" type="text" placeholder="Sequence name" />
-      <button id="saveSeq" class="small">保存</button>
-    </div>
-    <div id="seqList" class="seq-list list"></div>
-    <div class="help">Sequence は localStorage に保存されます。</div>
-    <div style="margin-top:12px" class="controls">
-      <button id="exportAll" class="small">全設定エクスポート</button>
-      <button id="importAll" class="small ghost">全設定インポート</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="row" style="justify-content:space-between;align-items:center;">
-      <div>
-        <button id="tabExec" class="small ok">Execute</button>
-        <button id="tabScratch" class="small ghost">rawAPI</button>
-      </div>
-      <div class="rowcenter">
-        <span class="pill">Select token:</span>
-        <select id="selectToken"><option value="">--選択--</option></select>
-      </div>
-    </div>
-
-    <div id="viewExec" style="margin-top:16px;">
-      <div class="grid2">
-        <div>
-          <div class="title">Quick Create from Template</div>
-          <label>テンプレ Label を選択</label>
-          <select id="tplSelect"><option value="">--選択--</option></select>
-          <div class="controls" style="margin-top:8px">
-            <button id="applyTpl" class="small">利用</button>
-            <button id="openScratch" class="small ghost">Open rawAPI</button>
-          </div>
-          <div class="muted" style="margin-top:8px">テンプレを選択して「利用」を押すと下の実行フォームが自動入力されます。</div>
-        </div>
-        <div>
-          <div class="title">Execution Controls</div>
-          <label><input type="checkbox" id="consentExec" /> 実行リスクを理解しました</label>
-          <div class="controls" style="margin-top:8px">
-            <button id="btnExec" class="ok small">実行 (Execute)</button>
-            <button id="btnStop" class="danger small" style="display:none">停止</button>
-            <button id="btnGen" class="ghost small">curl/fetch 生成</button>
-          </div>
-        </div>
-      </div>
-
+      <div class="muted" style="margin-top:12px">保存済トークン</div>
+      <div id="tokenList" class="list"></div>
+  
       <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
-
-      <div>
-        <div class="title">Create Parameters</div>
-        <label>Recipients (カンマ区切り)</label>
-        <input id="exec_recipients" type="text" />
-        <label>Optional name</label>
-        <input id="exec_name" type="text" />
-        <label>Count</label>
-        <input id="exec_count" type="text" value="1" />
+  
+      <div class="title">Group Templates</div>
+      <label>設定 Label</label><input id="gLabel" type="text" placeholder="group-1" />
+      <label>Group 名（表示名）</label><input id="gName" type="text" placeholder="groupname" />
+      <label>ユーザーID（カンマ区切り）</label><input id="gUsers" type="text" placeholder="123,456,789" />
+      <label>作成数</label><input id="gCount" type="text" value="1" />
+      <div class="controls" style="margin-top:8px">
+        <button id="saveGroup" class="small">保存</button>
+        <button id="refreshGroups" class="small ghost">一覧更新</button>
       </div>
-
-      <div style="margin-top:16px">
-        <div class="title">Log / Response</div>
-        <pre id="execLog">—</pre>
-      </div>
-    </div>
-
-    <div id="viewScratch" style="margin-top:16px; display:none;">
-      <div class="title">Workspace</div>
-      <div>
-        <div class="col-left">
-          <div class="title">Palette</div>
-          <div class="muted">ブロックをドラッグ or ダブルクリックで追加</div>
-          <div class="palette" id="palette" style="margin-top:8px">
-            <div class="block" draggable="true" data-type="api">API Call</div>
-            <div class="block" draggable="true" data-type="wait">Wait (Delay)</div>
-            <div class="block" draggable="true" data-type="loop">Loop (Next Block)</div>
-            <div class="block" draggable="true" data-type="cond">If Condition</div>
-            <div class="block" draggable="true" data-type="comment">Comment / Note</div>
-          </div>
-          <div class="controls" style="margin-top:12px">
-            <button id="runSeq" class="ok small">実行</button>
-            <button id="clearWorkspace" class="ghost small">クリア</button>
-            <button id="exportSeq" class="small">エクスポート</button>
-            <button id="importSeq" class="small ghost">インポート</button>
-          </div>
-          <div style="margin-top:12px">
-            <button id="toggleLayout" class="small ghost">レイアウト切替 (縦/横)</button>
-            <div class="notice" id="layoutNotice">現在：横表示</div>
-          </div>
-        </div>
-
-        <div class="col-center">
-          <div id="workspace" ondragover="event.preventDefault()"></div>
-          <div class="title" style="margin-top:16px">Sequence Preview (JSON)</div>
-          <pre id="seqPreview">[]</pre>
-        </div>
-
-        <div class="col-right">
-          <div class="title">Selected Block</div>
-          <div id="blockConfig" class="block-config">選択したブロックのプロパティを編集できます</div>
-          <div class="title" style="margin-top:16px">Current Variables (Context)</div>
-          <pre id="contextView" style="max-height:100px;">{}</pre>
-          <div class="title" style="margin-top:16px">rawAPI Log</div>
-          <pre id="scratchLog">—</pre>
-        </div>
-      </div>
+      <div id="groupList" class="list" style="margin-top:8px"></div>
     </div>
   </div>
+
+      <div class="col-main">
+    <div class="card card-top" style="margin-bottom: 16px;">
+        <div class="row" style="justify-content:space-between;align-items:center;">
+            <div>
+                <button id="tabExec" class="small ok">Execute</button>
+                <button id="tabScratch" class="small ghost">rawAPI</button>
+            </div>
+            <div class="rowcenter">
+                <span class="pill">Select token:</span>
+                <select id="selectToken"><option value="">--選択--</option></select>
+            </div>
+        </div>
+    </div>
+    <div class="card card-scrollable" style="flex-grow: 1; padding: 0;">
+                <div id="viewExec" style="padding:16px;">
+            <div id="execForm">
+                <div class="title">Execution Parameters</div>
+                <div class="grid2">
+                    <div>
+                        <label>Recipients (カンマ区切り)</label>
+                        <input id="exec_recipients" type="text" />
+                        <label>Optional name</label>
+                        <input id="exec_name" type="text" />
+                        <label>Count</label>
+                        <input id="exec_count" type="text" value="1" />
+                    </div>
+                    <div>
+                        <div class="title">Quick Setup</div>
+                        <label>テンプレ Label を選択</label>
+                        <select id="tplSelect"><option value="">--選択--</option></select>
+                        <div class="controls" style="margin-top:8px">
+                            <button id="applyTpl" class="small">利用</button>
+                            <button id="openScratch" class="small ghost">Open rawAPI</button>
+                        </div>
+                        <div class="muted" style="margin-top:8px">テンプレを選択して「利用」を押すと自動入力されます。</div>
+                    </div>
+                </div>
+                <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
+                <div class="row" style="justify-content:space-between">
+                    <div>
+                        <label><input type="checkbox" id="consentExec" /> 実行リスクを理解しました</label>
+                    </div>
+                    <div class="controls">
+                        <button id="btnExec" class="ok small">実行 (Execute)</button>
+                        <button id="btnStop" class="danger small" style="display:none">停止</button>
+                        <button id="btnGen" class="ghost small">curl/fetch 生成</button>
+                    </div>
+                </div>
+            </div>
+            <div id="execLogContainer">
+                <div class="title">Log / Response</div>
+                <pre id="execLog">—</pre>
+            </div>
+        </div>
+        
+                <div id="viewScratch" style="display:none; padding:16px;">
+            <div>
+                <div class="col-left">
+                    <div class="title">Palette</div>
+                    <div class="muted">ブロックをドラッグ or ダブルクリック</div>
+                    <div class="palette" id="palette" style="margin-top:8px">
+                        <div class="block" draggable="true" data-type="api">API Call</div>
+                        <div class="block" draggable="true" data-type="wait">Wait (Delay)</div>
+                        <div class="block" draggable="true" data-type="loop">Loop (Next Block)</div>
+                        <div class="block" draggable="true" data-type="cond">If Condition</div>
+                        <div class="block" draggable="true" data-type="comment">Comment / Note</div>
+                    </div>
+                    <div class="controls" style="margin-top:12px">
+                        <button id="runSeq" class="ok small">実行</button>
+                        <button id="clearWorkspace" class="ghost small">クリア</button>
+                        <button id="toggleLayout" class="small ghost">レイアウト切替</button>
+                    </div>
+                    <div class="notice" id="layoutNotice" style="font-size:12px;color:var(--accent-light);margin-top:4px;">現在：横表示</div>
+                </div>
+
+                <div class="col-center">
+                    <div class="title">Sequence Workspace</div>
+                    <div id="workspace" ondragover="event.preventDefault()"></div>
+                    <div class="title" style="margin-top:16px">Sequence Preview (JSON)</div>
+                    <pre id="seqPreview" style="max-height:100px; flex-shrink:0;">[]</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+    
+    <div class="col-sequences">
+        <div class="card">
+            <div id="seqListContainer">
+                <div class="title">Saved Sequences</div>
+                <div class="controls">
+                    <input id="seqName" type="text" placeholder="Sequence name" />
+                    <button id="saveSeq" class="small">保存</button>
+                </div>
+                <div id="seqList" class="seq-list list"></div>
+                <div class="help muted">Sequence は localStorage に保存されます。</div>
+                <div class="controls">
+                    <button id="exportSeq" class="small">Seq Export</button>
+                    <button id="importSeq" class="small ghost">Seq Import</button>
+                </div>
+                <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
+                <div class="title">Global Data</div>
+                <div class="controls">
+                    <button id="exportAll" class="small">全設定エクスポート</button>
+                    <button id="importAll" class="small ghost">全設定インポート</button>
+                </div>
+                <hr style="margin:16px 0;border:none;border-top:1px solid var(--border)">
+            </div>
+            
+            <div id="scratchConfigLog" style="display:none;">
+                <div class="title">Selected Block Config</div>
+                <div id="blockConfig" class="block-config config-container">選択したブロックのプロパティを編集できます</div>
+                <div class="title">Current Variables (Context)</div>
+                <pre id="contextView" style="max-height:100px;">{}</pre>
+                <div class="title">rawAPI Log</div>
+                <pre id="scratchLog">—</pre>
+            </div>
+
+            <div id="imagePanel">
+                <div class="title">Icon / Image</div>
+                <div class="muted">テンプレート用のアイコン（base64として保存）</div>
+                <label>画像アップロード</label>
+                <input id="iconFile" type="file" accept="image/*" />
+                <div class="row" style="margin-top:12px">
+                    <img id="iconPreview" class="img-preview" alt="" />
+                    <div style="flex:1">
+                        <div class="small" id="iconInfo">No icon</div>
+                        <div style="margin-top:8px" class="controls">
+                            <button id="removeIcon" class="small ghost">削除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <footer>Local only — tokens, templates & sequences saved to localStorage</footer>
 
 <script>
+// (前回のコードのJavaScriptをそのまま貼り付けますが、タブ切り替えのロジックのみ変更します)
+// ... [START of JavaScript block - 多くのコードは変更なし] ...
 const STORAGE_KEY = 'selfhub_rawapi_v1';
 function loadDB(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {tokens:{}, templates:{}, sequences:{}, icon:null}; }catch(e){ return {tokens:{}, templates:{}, sequences:{}, icon:null}; }}
 function saveDB(){ try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(DB)); }catch(e){} refreshTokenUI(); refreshTplUI(); refreshSeqList(); }
@@ -505,13 +588,16 @@ async function runSequence(arr,token){
 }
 $('btnExec').onclick = async ()=>{ if(!$('consentExec').checked){ alert('実行前に同意してください'); return; } const sel = $('selectToken').value; if(!sel){ alert('Token を選択してください'); return; } const token = DB.tokens[sel].token; const rec = $('exec_recipients').value.split(',').map(s=>s.trim()).filter(Boolean); if(rec.length < 2){ alert('Recipients は2人以上必要です'); return; } const name = $('exec_name').value.trim(); const count = Number($('exec_count').value) || 1; runStopFlag = false; $('btnStop').style.display='inline-block'; appendLog('開始: Create Group x'+count); for(let i=0;i<count;i++){ if(runStopFlag) break; try{ const res = await fetchWithRetry('https://discord.com/api/v9/users/@me/channels', { method:'POST', headers:{'Authorization':token,'Content-Type':'application/json'}, body: JSON.stringify({recipients:rec}) }); const jtxt = await res.text().catch(()=>null); appendLog(`[Create ${i+1}] ${res.status} ${jtxt? (jtxt.length>400? jtxt.slice(0,400)+'...': jtxt):''}`); window._scratch_last_status = res.status; if(res.ok && name){ let j = null; try{ j = JSON.parse(jtxt); }catch(e){} if(j && j.id){ const cid = j.id; const patchBody = {name: name + (count>1 ? `_${i+1}` : '')}; if(DB.icon) patchBody.icon = DB.icon; const pres = await fetchWithRetry('https://discord.com/api/v9/channels/'+cid, { method:'PATCH', headers:{'Authorization':token,'Content-Type':'application/json'}, body: JSON.stringify(patchBody) }); const ptxt = await pres.text().catch(()=>null); appendLog(`[PATCH ${cid}] ${pres.status} ${ptxt?ptxt.slice(0,400):''}`); window._scratch_last_status = pres.status; } else appendLog('channel id が返らず name を PATCH できませんでした'); } }catch(e){ appendLog('ERROR create: '+e.message); } } $('btnStop').style.display='none'; runStopFlag = false; appendLog('完了'); };
 $('runSeq').onclick = async ()=>{ const sel = $('selectToken').value; if(!sel){ alert('Token を選択してください'); return; } if(!confirm('Sequence を実行しますか？（自己責任）')) return; const token = DB.tokens[sel].token; window._scratch_context = {}; runStopFlag = false; $('btnStop').style.display='inline-block'; $('scratchLog').textContent = ''; try{ const seq = workspaceToSequence(); await runSequence(seq, token); }catch(e){ appendLog('実行中断: '+(e && e.message ? e.message : String(e))); } $('btnStop').style.display='none'; runStopFlag=false; appendLog('Sequence 実行終了'); refreshContextView(); };
-// Tab Switching
+// Tab Switching (全体レイアウトに合わせて調整)
 $('tabExec').onclick = ()=>{ 
-    $('viewExec').style.display='block'; 
+    $('viewExec').style.display='grid'; 
     $('viewScratch').style.display='none'; 
     $('tabExec').classList.add('ok'); $('tabExec').classList.remove('ghost'); 
     $('tabScratch').classList.remove('ok'); $('tabScratch').classList.add('ghost'); 
-    updateLayoutForTab(false);
+    // 右カラムの表示切り替え
+    $('scratchConfigLog').style.display = 'none';
+    $('seqListContainer').style.display = 'block';
+    $('imagePanel').style.display = 'block';
 };
 $('tabScratch').onclick = ()=>{ 
     $('viewExec').style.display='none'; 
@@ -520,7 +606,11 @@ $('tabScratch').onclick = ()=>{
     $('tabScratch').classList.add('ok'); $('tabScratch').classList.remove('ghost'); 
     if($('scratchLog').textContent === '—') $('scratchLog').textContent = ''; 
     refreshContextView();
-    updateLayoutForTab(true);
+    // 右カラムの表示切り替え
+    $('scratchConfigLog').style.display = 'flex';
+    $('seqListContainer').style.display = 'none';
+    $('imagePanel').style.display = 'none';
+    updateLayoutNotice();
 };
 $('openScratch').onclick = ()=>{ $('tabScratch').click(); };
 
@@ -539,23 +629,6 @@ function updateLayoutNotice(){
     else notice.textContent = '現在：横表示'; 
 }
 
-function updateLayoutForTab(isScratch) {
-    if (isScratch) {
-        // rawAPIタブの場合、パレットとワークスペースを表示し、デフォルトで横フローを維持
-        $('palette').style.display = 'grid';
-        $('workspace').style.display='flex';
-        // 初回ロード時は縦表示クラスが付いていなければ横表示と見なす
-        if (!$('workspace').classList.contains('vertical')) {
-            $('workspace').classList.remove('vertical');
-        }
-    } else {
-        // Executeタブの場合、非表示
-        $('palette').style.display = 'none';
-        $('workspace').style.display='none';
-    }
-    updateLayoutNotice();
-}
-
 $('exportSeq').onclick = ()=>{ const data = workspaceToSequence(); const text = JSON.stringify({exported:Date.now(), blocks:data}, null, 2); const blob = new Blob([text], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'sequence.json'; a.click(); URL.revokeObjectURL(url); };
 $('importSeq').onclick = ()=>{ const f = document.createElement('input'); f.type='file'; f.accept='application/json'; f.onchange = ()=> { const file = f.files[0]; if(!file) return; const r = new FileReader(); r.onload = ()=> { try{ const j = JSON.parse(r.result); if(j.blocks && Array.isArray(j.blocks)) { loadSequenceObjectToWorkspace(j.blocks); alert('読み込み完了'); } else alert('不正なファイル'); }catch(e){ alert('読み込みエラー'); } }; r.readAsText(file); }; f.click(); };
 $('exportAll').onclick = ()=>{ const text = JSON.stringify({exported:Date.now(), db:DB}, null, 2); const blob = new Blob([text], {type:'application/json'}); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'gtools_full_export.json'; a.click(); URL.revokeObjectURL(url); };
@@ -566,13 +639,17 @@ function loadInitial(){
     if(DB.icon){ $('iconPreview').src = DB.icon; $('iconInfo').textContent = 'Icon loaded'; } else { $('iconPreview').src = ''; $('iconInfo').textContent = 'No icon'; } 
     refreshTokenUI(); refreshTplUI(); refreshSeqList(); 
     
-    // 初期表示はExecタブなので、Scratch要素は非表示
+    // 初期表示はExecタブ
+    $('viewExec').style.display='grid';
     $('viewScratch').style.display='none';
-    updateLayoutForTab(false); 
+    $('scratchConfigLog').style.display = 'none';
+    $('seqListContainer').style.display = 'block';
+    $('imagePanel').style.display = 'block';
 
     refreshContextView(); 
 }
 window.onload = loadInitial;
+// ... [END of JavaScript block] ...
 </script>
 </body>
 </html>
